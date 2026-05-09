@@ -1,4 +1,7 @@
-"""RAG Flow using LlamaIndex for Web Crawling Agent"""
+"""RAG Flow using LlamaIndex for Web Crawling Agent
+https://github.com/run-llama/llama_index/
+pip install llama-index
+"""
 from typing import List, Dict, Any, Optional
 import os
 from pathlib import Path
