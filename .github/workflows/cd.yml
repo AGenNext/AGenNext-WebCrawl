@@ -40,4 +40,4 @@ jobs:
     steps:
       - name: Deploy to Coolify
         run: |
-          curl -s -X POST "https://vps.openautonomyx.com/api/v1/deploy?uuid=hx8o7igiqdhzumxnykgcycl0&force=true"
+          curl -s -X POST "https://vps.openautonomyx.com/api/v1/deploy?uuid=hx8o7igiqdhzumxnykgcycl0"
