@@ -205,24 +205,36 @@ def firecrawl_pdf(url: str) -> Dict[str, Any]:
 # ============== CRAWL4AI INTEGRATIONS ==============
 # Repo: https://github.com/unclecode/crawl4ai
 # Install: pip install crawl4ai
-# Optional: pip install -e ".[torch|transformer|cosine|sync|all]"
+# Docker: docker run -d -p 8555:8000 unclecode/crawl4ai:latest
 
 try:
-    from crawl4ai import AsyncCrawler, CrawlerResult
+    from crawl4ai import AsyncCrawler, CrawlerResult, BrowserConfig, CrawlerRunConfig
     CRAWL4AI_AVAILABLE = True
 except ImportError:
     CRAWL4AI_AVAILABLE = False
 
-# Crawl4AI installation options
-CRAWL4AI_INSTALLS = {
-    "basic": "pip install crawl4ai",
-    "torch": "pip install -e \".[torch]\"",
-    "transformer": "pip install -e \".[transformer]\"",
-    "cosine": "pip install -e \".[cosine]\"",
-    "sync": "pip install -e \".[sync]\" (Selenium)",
-    "all": "pip install -e \".[all]\"",
-    "docker": "docker run -d -p 8555:8000 unclecode/crawl4ai:latest",
-    "docker_gpu": "docker run -d -p 8555:8000 unclecode/crawl4ai:latest-gpu",
+# Crawl4AI modules
+CRAWL4AI_MODULES = {
+    "crawl4ai.crawler": "Main crawler module",
+    "crawl4ai.browser": "Browser management",
+    "crawl4ai.deep_crawl": "Deep crawling strategies",
+    "crawl4ai.extraction_strategy": "Data extraction",
+    "crawl4ai.markdown_generation": "Markdown generation",
+    "crawl4ai.cache": "Caching",
+    "crawl4ai.docker": "Docker API client",
+}
+
+# Crawl4AI key classes
+CRAWL4AI_CLASSES = {
+    "AsyncCrawler": "Main async crawler",
+    "BrowserConfig": "Browser configuration",
+    "CrawlerRunConfig": "Run configuration",
+    "BrowserManager": "Browser lifecycle",
+    "HTTPCrawlerStrategy": "HTTP-only crawl",
+    "PlaywrightCrawler": "JS rendering",
+    "BFSDeepCrawl": "Breadth-first deep crawl",
+    "DFSTreeCrawl": "DFS deep crawl",
+    "BestFirstDeepCrawl": "Best-first crawl",
 }
 
 # Crawl4AI features (from docs/examples)
