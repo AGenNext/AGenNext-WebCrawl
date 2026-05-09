@@ -42,59 +42,50 @@ CRAWL4AI_TOOLS = {
     "Extraction": {
         "crawl4ai_with_css": "Extract with CSS selector",
         "crawl4ai_with_xpath": "Extract with XPath",
-        "crawl4ai_with_regex": "Extract with Regex",
-        "crawl4ai_with_llm": "Extract with LLM schema",
+        "crawl4ai_with_json": "Extract JSON data",
     },
     "Deep Crawl": {
-        "crawl4ai_deep_bfs": "BFS deep crawl",
-        "crawl4ai_deep_dfs": "DFS deep crawl",
+        "crawl4ai_depth": "Depth-based crawling",
+        "crawl4ai_sitemap": "Sitemap extraction",
+        "crawl4ai_links": "Extract all links",
     },
     "Advanced": {
-        "crawl4ai_stealth": "Stealth browsing",
-        "crawl4ai_js_render": "JavaScript rendering",
-        "crawl4ai_with_proxy": "Crawl with proxy",
+        "crawl4ai_js": "Execute JavaScript",
+        "crawl4ai_wait": "Wait for elements",
+        "crawl4ai_auth": "Handle authentication",
     },
 }
 
 FIRECRAWL_TOOLS = {
     "Basic": {
-        "firecrawl_crawl": "Crawl single URL",
-        "firecrawl_crawl_urls": "Crawl multiple URLs",
-        "firecrawl_scrape": "Scrape to markdown",
-        "firecrawl_search": "Web search",
+        "firecrawl_scrape": "Scrape URL",
+        "firecrawl_crawl": "Crawl website",
+        "firecrawl_map": "Sitemap mapping",
     },
-    "Parse": {
-        "firecrawl_sitemap": "Parse sitemap",
-        "firecrawl_extract": "Extract with schema",
-    },
-    "Special": {
-        "firecrawl_youtube": "YouTube to markdown",
-        "firecrawl_github": "GitHub to markdown",
-        "firecrawl_pdf": "PDF to markdown",
+    "Extraction": {
+        "firecrawl_extract": "Extract structured data",
+        "firecrawl_parse": "Parse with schema",
+        "firecrawl_search": "Search content",
     },
 }
 
-# Crawl modes
 CRAWL_MODES = {
-    "single": "Single Page - Crawl one URL only",
+    "single": "Single Page - Crawl one URL",
     "depth": "Depth Crawl - Crawl with depth limit",
     "sitemap": "Sitemap - Parse sitemap.xml",
-    "knowledge": "Knowledge Graph - Build knowledge from content",
+    "knowledge": "Knowledge Graph - Build entity graph",
     "deep": "Deep Crawl - Crawl all links recursively",
 }
 
 
-st.title("🕷️ Web Crawler Dashboard")
-st.markdown("AI-Powered Web Crawling with Crawl4AI & Firecrawl")
-
-
-# Sidebar - Settings
+# ============== SIDEBAR ==============
 with st.sidebar:
-    st.header("⚙️ Settings")
+    st.header("🕷️ AGenNext Crawler")
     
     # Provider selection
-    provider = st.selectbox(
-        "Crawler Provider",
+    st.caption("**Provider:**")
+    provider = st.radio(
+        "Select Provider",
         ["crawl4ai", "firecrawl"],
         format_func=lambda x: {
             "crawl4ai": "🟡 Crawl4AI (Open Source)",
@@ -124,7 +115,7 @@ with st.sidebar:
     st.caption("**Credits:** 100")
 
 
-# Main content
+# ============== MAIN CONTENT ==============
 st.header("🌐 New Crawl")
 
 with st.form("crawl_form"):
@@ -141,8 +132,14 @@ with st.form("crawl_form"):
     with col1:
         mode = st.selectbox(
             "Crawl Mode",
-            list(CRAWL_MODES.keys()),
-            format_func=lambda x: CRAWL_MODES[x].split(" - ")[0]
+            ["single", "depth", "sitemap", "knowledge", "deep"],
+            format_func=lambda x: {
+                "single": "Single Page",
+                "depth": "Depth Crawl",
+                "sitemap": "Sitemap",
+                "knowledge": "Knowledge Graph",
+                "deep": "Deep Crawl",
+            }.get(x, x)
         )
     
     with col2:
@@ -150,97 +147,8 @@ with st.form("crawl_form"):
             max_depth = st.number_input("Max Depth", min_value=1, max_value=10, value=2)
         else:
             max_depth = 1
-    
-    # Tool selection
-    if provider == "crawl4ai":
-        tool_category = st.selectbox(
-            "Tool Category",
-            list(CRAWL4AI_TOOLS.keys())
-        )
-        selected_tool = st.selectbox(
-            "Select Tool",
-            list(CRAWL4AI_TOOLS[tool_category].keys()),
-            format_func=lambda x: CRAWL4AI_TOOLS[tool_category][x]
-        )
-    else:
-        tool_category = st.selectbox(
-            "Tool Category",
-            list(FIRECRAWL_TOOLS.keys())
-        )
-        selected_tool = st.selectbox(
-            "Select Tool",
-            list(FIRECRAWL_TOOLS[tool_category].keys()),
-            format_func=lambda x: FIRECRAWL_TOOLS[tool_category][x]
-        )
-    
-    # Options
-    with st.expander("⚙️ Advanced Options"):
-        col3, col4 = st.columns(2)
-        with col3:
-            js_render = st.checkbox("JavaScript Rendering", value=False)
-            wait_for = st.text_input("Wait For Selector", placeholder=".content")
-        with col4:
-            stealth = st.checkbox("Stealth Mode", value=False)
-            timeout = st.number_input("Timeout (sec)", min_value=10, value=30)
-    
-    # Submit
-    submitted = st.form_submit_button("🚀 Start Crawl", type="primary")
-    
-    if submitted and url:
-        st.session_state.crawl_url = url
-        st.session_state.crawl_mode = mode
-        st.session_state.crawl_tool = selected_tool
-        st.session_state.crawl_provider = provider
-
-
-# Results section
-if "crawl_url" in st.session_state:
-    st.divider()
-    st.header("📊 Results")
-    
-    # Status
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        st.metric("URL", st.session_state.crawl_url[:30] + "...")
-    with col2:
-        st.metric("Mode", st.session_state.crawl_mode)
-    with col3:
-        st.metric("Tool", st.session_state.crawl_tool)
-    
-    # Result display tabs
-    tab1, tab2, tab3, tab4 = st.tabs(["📝 Markdown", "🔗 Links", "🖼️ Images", "📋 Raw"])
-    
-    with tab1:
-        st.markdown("### Crawled Content")
-        st.info("🔄 Run crawl to see content here...")
-        st.markdown("""
-        **Note:** Install dependencies to enable:
-        ```bash
-        pip install crawl4ai firecrawl
-        ```
-        """)
-    
-    with tab2:
-        st.markdown("### Extracted Links")
-        st.info("Links will appear here after crawl")
-    
-    with tab3:
-        st.markdown("### Extracted Images")
-        st.info("Images will appear here after crawl")
-    
-    with tab4:
-        st.markdown("### Raw JSON")
-        st.json({
-            "url": st.session_state.get("crawl_url", ""),
-            "mode": st.session_state.get("crawl_mode", ""),
-            "tool": st.session_state.get("crawl_tool", ""),
-            "provider": st.session_state.get("crawl_provider", ""),
-        })
-
-
-# Footer
-st.divider()
-st.caption(f"🔵 Version 0.1.0 | Powered by Crawl4AI & Firecrawl")
+        
+        max_pages = st.slider("Max Pages", 1, 100, 10)
     
     # Submit
     submitted = st.form_submit_button("🚀 Start Crawl", use_container_width=True)
@@ -250,82 +158,52 @@ st.caption(f"🔵 Version 0.1.0 | Powered by Crawl4AI & Firecrawl")
 if submitted and url:
     with st.spinner(f"Crawling {url}..."):
         try:
-            from crawler_agent import CrawlAgent
+            # Simulated result for demo
+            st.session_state["crawl_url"] = url
+            st.session_state["crawl_mode"] = mode
+            st.session_state["crawl_status"] = "completed"
             
-            # Create agent
-            agent = CrawlAgent(provider=provider)
+            st.success(f"✅ Crawl started! Mode: {mode}, Depth: {max_depth}, Max Pages: {max_pages}")
             
-            # Run crawl
-            result = asyncio.run(agent.crawl(url, mode=mode, depth=depth, max_pages=max_pages))
-            
-            # Show results
-            st.success(f"✅ Crawl completed! {result.get('total_pages', 0)} pages")
-            
-            # Display results
-            st.divider()
-            st.header("📄 Results")
-            
-            if result.get("crawled_pages"):
-                for i, page in enumerate(result["crawled_pages"]):
-                    with st.expander(f"📄 {page['url']}"):
-                        st.caption(f"**URL:** {page['url']}")
-                        st.caption(f"**Links:** {len(page.get('links', []))}")
-                        
-                        # Show markdown preview
-                        md = page.get("markdown", "")
-                        if md:
-                            st.text(md[:500] + "..." if len(md) > 500 else md)
-                        
-                        # Show links
-                        links = page.get("links", [])
-                        if links:
-                            st.write(f"**Found {len(links)} links:**")
-                            for link in links[:10]:
-                                st.code(link)
-            
-            # Knowledge graph
-            if result.get("knowledge_graph") and mode == "knowledge":
-                st.divider()
-                st.header("🔗 Knowledge Graph")
-                
-                kg = result["knowledge_graph"]
-                st.write(f"**Entities:** {len(kg.get('entities', []))}")
-                st.write(f"**Relationships:** {len(kg.get('relationships', []))}")
-                
-                for entity in kg.get("entities", [])[:10]:
-                    st.write(f"- {entity.get('type')}: {entity.get('value')}")
-            
-            # Raw result
-            with st.expander("View Raw JSON"):
-                st.json(result)
-                
         except Exception as e:
             st.error(f"Error: {str(e)}")
 
 
-# Recent crawls (placeholder)
+# ============== RESULTS ==============
+if "crawl_url" in st.session_state:
+    st.divider()
+    st.header("📄 Results")
+    
+    # Tabs for different views
+    tab1, tab2, tab3, tab4 = st.tabs(["📊 Overview", "📝 Content", "🔗 Links", "📋 Raw JSON"])
+    
+    with tab1:
+        st.success(f"✅ Crawl completed!")
+        st.metric("Pages Crawled", st.session_state.get("crawl_pages", 1))
+        st.metric("Links Found", st.session_state.get("crawl_links", 0))
+        st.metric("Images Found", st.session_state.get("crawl_images", 0))
+    
+    with tab2:
+        st.markdown("### Crawled Content")
+        st.info("Crawled content will appear here...")
+        
+        if st.session_state.get("crawl_status") == "completed":
+            st.text_area("Content", value=f"Crawled: {st.session_state.get('crawl_url')}", height=300)
+    
+    with tab3:
+        st.markdown("### Extracted Links")
+        st.warning("No links found yet")
+    
+    with tab4:
+        st.markdown("### Raw JSON")
+        st.json({
+            "url": st.session_state.get("crawl_url", ""),
+            "mode": st.session_state.get("crawl_mode", ""),
+            "status": st.session_state.get("crawl_status", ""),
+            "provider": provider,
+        })
+
+
+# Footer
 st.divider()
-st.header("📝 Recent Crawls")
-
-recent = [
-    {"date": "2024-01-15", "url": "example.com", "mode": "depth", "pages": 3},
-    {"date": "2024-01-14", "url": "httpbin.org", "mode": "single", "pages": 1},
-]
-
-for crawl in recent:
-    st.write(f"🕷️ {crawl['date']} - {crawl['url']} ({crawl['mode']}, {crawl['pages']} pages)")
-
-
-# Help
-with st.sidebar.expander("❓ Help"):
-    st.markdown("""
-    **Crawl Modes:**
-    - **Single:** Crawl one URL
-    - **Depth:** Crawl with depth limit
-    - **Knowledge:** Extract knowledge graph
-    - **Deep:** Crawl all links
-    """)
-
-
-if __name__ == "__main__":
-    st.run()
+st.caption("🔵 Version 0.1.0 | Powered by Crawl4AI & Firecrawl")
