@@ -126,23 +126,22 @@ def get_credit_manager() -> CreditManager:
     return _credit_manager
 
 
-# Price per page by mode (industry standard: $0.75-2.50 per 1K = ~0.001-0.003/page)
-# Using credits: 1 credit ≈ $0.001
+# Price per page (competitive: $0.01-0.05/page)
 CREDIT_COSTS = {
-    "single": 1,      # $0.001/page
-    "depth": 2,        # $0.002/page/level
-    "sitemap": 3,     # More complex
-    "knowledge": 5,   # LLM extraction
-    "deep": 10,       # Full recursion
+    "single": 10,      # $0.01/page
+    "depth": 20,       # $0.02/page/level  
+    "sitemap": 30,     # $0.03 - sitemap parse
+    "knowledge": 50,   # $0.05 - LLM extraction
+    "deep": 100,       # $0.10 - full crawl
 }
 
-# Feature multipliers (industry standard)
+# Feature multipliers
 FEATURE_COSTS = {
-    "js_rendering": 2.0,   # Browser headless
-    "screenshot": 3,       # Capture
-    "pdf": 5,              # Render
-    "auth": 5,             # Login handling
-    "premium_proxy": 3,    # Residential proxy
+    "js_rendering": 2.0,
+    "screenshot": 3,
+    "pdf": 5,
+    "auth": 5,
+    "premium_proxy": 3,
 }
 
 # LLM cost per 1K tokens (USD) - matches OpenAI/Anthropic rates
