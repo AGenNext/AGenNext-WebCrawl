@@ -126,27 +126,31 @@ def get_credit_manager() -> CreditManager:
     return _credit_manager
 
 
-# Price per page by mode
+# Price per page by mode (industry standard: $0.75-2.50 per 1K = ~0.001-0.003/page)
+# Using credits: 1 credit ≈ $0.001
 CREDIT_COSTS = {
-    "single": 1,
-    "depth": 2,
-    "sitemap": 2,
-    "knowledge": 3,
-    "deep": 5,
+    "single": 1,      # $0.001/page
+    "depth": 2,        # $0.002/page/level
+    "sitemap": 3,     # More complex
+    "knowledge": 5,   # LLM extraction
+    "deep": 10,       # Full recursion
 }
 
-# Feature multipliers
+# Feature multipliers (industry standard)
 FEATURE_COSTS = {
-    "js_rendering": 1.5,
-    "screenshot": 2,
-    "pdf": 3,
-    "auth": 2,
+    "js_rendering": 2.0,   # Browser headless
+    "screenshot": 3,       # Capture
+    "pdf": 5,              # Render
+    "auth": 5,             # Login handling
+    "premium_proxy": 3,    # Residential proxy
 }
 
-# LLM cost per 1K tokens (USD)
+# LLM cost per 1K tokens (USD) - matches OpenAI/Anthropic rates
 LLM_RATES = {
     "openai/gpt-4o": {"in": 0.0025, "out": 0.01},
+    "openai/gpt-4o-mini": {"in": 0.00015, "out": 0.0006},
     "anthropic/claude-sonnet": {"in": 0.003, "out": 0.015},
+    "anthropic/claude-opus": {"in": 0.015, "out": 0.075},
     "gemini/gemini-pro": {"in": 0.000125, "out": 0.0005},
     "ollama/*": {"in": 0.0, "out": 0.0},
 }
