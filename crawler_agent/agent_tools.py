@@ -1,5 +1,6 @@
 """All Tools for LangGraph Agent - Crawlers, OCR, RAG, etc.
-Includes LlamaIndex integrations: https://github.com/run-llama/llama_index/
+LlamaIndex: https://github.com/run-llama/llama_index/
+LlamaHub: https://llamahub.ai/
 pip install llama-index
 """
 from typing import Dict, Any, Callable, List
@@ -16,6 +17,8 @@ from crawler_agent.skills import AGENT_SKILLS
 
 
 # ============== LLAMAINDEX INTEGRATIONS ==============
+# Docs: https://llamahub.ai/
+# pip install llama-index
 
 # Try imports from llama-index integrations
 try:
@@ -25,22 +28,28 @@ except ImportError:
     LLAMA_READERS = False
 
 try:
-    from llama_index.vector_stores import PineconeVectorStore, WeaviateVectorStore
-    LLAMA_VECTOR_STORES = True
+    from llama_index.readers.twitter import TwitterTweetReader
+    TWITTER_READER = True
 except ImportError:
-    LLAMA_VECTOR_STORES = False
+    TWITTER_READER = False
 
 try:
-    from llama_index.embeddings import OpenAIEmbedding, HuggingFaceEmbedding, OllamaEmbedding
-    LLAMA_EMBEDDINGS = True
+    from llama_index.readers.youtube import YouTubeTranscriptReader
+    YOUTUBE_READER = True
 except ImportError:
-    LLAMA_EMBEDDINGS = False
+    YOUTUBE_READER = False
 
 try:
-    from llama_index.llms import OpenAI, Ollama, Anthropic
-    LLAMA_LLMS = True
+    from llama_index.readers.wikipedia import WikipediaReader
+    WIKIPEDIA_READER = True
 except ImportError:
-    LLAMA_LLMS = False
+    WIKIPEDIA_READER = False
+
+try:
+    from llama_index.readers.notion import NotionPageReader
+    NOTION_READER = True
+except ImportError:
+    NOTION_READER = False
 
 
 # ============== RAG WITH LLAMAINDEX ==============
