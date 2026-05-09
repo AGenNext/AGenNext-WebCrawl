@@ -9,14 +9,22 @@ Then navigate to:
 """
 import streamlit as st
 from datetime import datetime
+import sys
+sys.path.insert(0, '/workspace/project')
+from version import __version__, APP_NAME, APP_TITLE
+from components.seo_meta import add_seo_meta, get_seo_config, DEFAULT_DESCRIPTION
 
-# Page config
+# Page config with SEO
+seo_config = get_seo_config(APP_TITLE)
 st.set_page_config(
-    page_title="Web Crawler Service",
-    page_icon="🕷️",
+    page_title=seo_config["page_title"],
+    page_icon=seo_config["page_icon"],
     layout="wide",
     initial_sidebar_state="expanded",
 )
+
+# Add SEO meta
+add_seo_meta(APP_TITLE, DEFAULT_DESCRIPTION)
 
 
 # Session state for auth
@@ -51,6 +59,10 @@ with st.sidebar:
     st.page_link("pages/2_billing_dashboard.py", label="💳 Billing")
     st.page_link("pages/3_account_settings.py", label="👤 Account")
     st.page_link("pages/4_login.py", label="🔐 Login")
+    st.page_link("pages/5_changelog.py", label="📋 Changelog")
+    st.page_link("pages/6_howto.py", label="📖 How-to")
+    st.page_link("pages/7_pricing.py", label="💰 Pricing")
+    st.page_link("pages/8_faq.py", label="❓ FAQ")
     
     st.divider()
     
@@ -131,7 +143,7 @@ st.markdown("""
 
 # Footer
 st.divider()
-st.caption(f"Web Crawler Service v0.1.0 • {datetime.now().year}")
+st.caption(f"{APP_TITLE} v{__version__} • {datetime.now().year}")
 
 
 if __name__ == "__main__":

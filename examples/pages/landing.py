@@ -5,14 +5,23 @@ SEO-optimized landing page with metadata, features, and pricing.
 """
 import streamlit as st
 from datetime import datetime
+import sys
+sys.path.insert(0, '/workspace/project')
+from version import __version__
+from components.seo_meta import add_seo_meta, get_seo_config, DEFAULT_DESCRIPTION
+from components.social_share import add_social_share, add_github_star_button
 
 # Page config with SEO metadata
+seo = get_seo_config("Web Crawler Agent")
 st.set_page_config(
-    page_title="Web Crawler Agent - AI-Powered Web Crawling Service",
-    page_icon="🕷️",
+    page_title=seo["page_title"],
+    page_icon=seo["page_icon"],
     layout="wide",
     initial_sidebar_state="collapsed",
 )
+
+# Add SEO meta
+add_seo_meta("Web Crawler Service", DEFAULT_DESCRIPTION)
 
 # Custom CSS for landing page
 st.markdown("""
@@ -274,6 +283,11 @@ st.markdown("""
 
 # Footer
 st.markdown("---")
+
+# Add social share and GitHub star
+add_github_star_button()
+st.markdown("### ")
+
 col1, col2, col3 = st.columns(3)
 
 with col1:
@@ -299,9 +313,11 @@ with col3:
     - [Contact](/contact)
     """)
 
-st.markdown(f"""
+st.markdown("""
 ---
-© {datetime.now().year} Web Crawler Agent. All rights reserved.
+**Built with ❤️ by [OpenAutonomyx (OPC) Private Limited](https://agnxxt.com)**
+
+© 2026 Web Crawler Agent. All rights reserved.
 """)
 
 
