@@ -144,30 +144,35 @@ with st.form("crawl_form"):
         timeout = st.number_input("⏱️ Timeout (s)", 10, 300, 60)
     
     # Submit
-    col_submit, _ = st.columns([1, 3])
+    col_submit, col_cost = st.columns([1, 2])
+    
     with col_submit:
         submitted = st.form_submit_button("🚀 Start Crawl", use_container_width=True, type="primary")
+    
+    # Cost estimate
+    with col_cost:
+        cost = max(1, max_pages) * {"single": 1, "depth": 2, "sitemap": 2, "knowledge": 3, "deep": 5}.get(mode, 1)
+        st.caption(f"💰 Cost: {cost} credits")
 
 
-# Process
+# Success
 if submitted and url:
     st.success(f"✅ Crawl started: {url}")
-    st.info(f"Mode: {CRAWL_MODES[mode]} | Pages: {max_pages} | Depth: {max_depth}")
-
-
-# Results preview
-if "url" in locals() and submitted:
-    with st.expander("📊 Results", expanded=True):
-        col_r1, col_r2, col_r3 = st.columns(3)
-        
-        with col_r1:
-            st.metric("Pages", 0)
-        
-        with col_r2:
-            st.metric("Links", 0)
-        
-        with col_r3:
-            st.metric("Status", "Ready")
+    
+    # Live metrics
+    col_r1, col_r2, col_r3, col_r4 = st.columns(4)
+    
+    with col_r1:
+        st.metric("📄 Pages", 0)
+    
+    with col_r2:
+        st.metric("🔗 Links", 0)
+    
+    with col_r3:
+        st.metric("💰 Cost", f"{cost} credits")
+    
+    with col_r4:
+        st.metric("⏱️ Status", "Running")
 
 
 # Footer
