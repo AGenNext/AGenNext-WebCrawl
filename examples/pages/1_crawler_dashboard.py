@@ -98,9 +98,9 @@ with st.sidebar:
     
     # Page nav
     st.subheader("📑 Pages")
-    st.page_link("examples/app.py", label="🏠 Dashboard", icon="🏠")
-    st.page_link("examples/pages/2_crawl_history.py", label="📜 History", icon="📜")
-    st.page_link("examples/pages/3_settings.py", label="⚙️ Settings", icon="⚙️")
+    st.page_link("app.py", label="🏠 Dashboard", icon="🏠")
+    st.page_link("pages/2_crawl_history.py", label="📜 History", icon="📜")
+    st.page_link("pages/3_settings.py", label="⚙️ Settings", icon="⚙️")
     
     st.divider()
     
