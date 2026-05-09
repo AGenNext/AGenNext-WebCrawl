@@ -129,23 +129,44 @@ def get_credit_manager() -> CreditManager:
 # Price per page by mode
 CREDIT_COSTS = {
     "single": 1,
-    "depth": 2,  # per level
+    "depth": 2,
     "sitemap": 2,
     "knowledge": 3,
     "deep": 5,
 }
 
+# Feature multipliers
+FEATURE_COSTS = {
+    "js_rendering": 1.5,
+    "screenshot": 2,
+    "pdf": 3,
+    "auth": 2,
+}
+
+# LLM cost per 1K tokens (USD)
+LLM_RATES = {
+    "openai/gpt-4o": {"in": 0.0025, "out": 0.01},
+    "anthropic/claude-sonnet": {"in": 0.003, "out": 0.015},
+    "gemini/gemini-pro": {"in": 0.000125, "out": 0.0005},
+    "ollama/*": {"in": 0.0, "out": 0.0},
+}
+
 
 def calculate_cost(mode: str, pages: int, depth: int = 1) -> int:
-    """Calculate credit cost for a crawl job"""
+    """Calculate credit cost for crawl"""
     base = CREDIT_COSTS.get(mode, 1)
     
     if mode == "depth":
         return base * depth * pages
     elif mode == "deep":
-        return base * min(pages, 100)  # cap at 100 pages
-    else:
-        return base * pages
+        return base * min(pages, 100)
+    return base * pages
+
+
+def calculate_llm_cost(provider: str, tokens_in: int, tokens_out: int) -> float:
+    """Calculate USD for LLM tokens"""
+    rates = LLM_RATES.get(provider, LLM_RATES.get("ollama/*", {"in": 0.0, "out": 0.0}))
+    return (tokens_in / 1000) * rates["in"] + (tokens_out / 1000) * rates["out"]
 
 
 __all__ = [
