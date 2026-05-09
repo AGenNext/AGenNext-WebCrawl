@@ -1,10 +1,12 @@
 # AGenNext-WebCrawl Agent
 
 ## Project Overview
+- **Type**: LangGraph-based Web Crawling Agent
 - Streamlit web crawling app using Firecrawl/Crawl4AI APIs
 - Deployed to: http://51.75.251.56:8501
 - Repository: AGenNext/AGenNext-WebCrawl
 - Docker Image: `openautonomyx/webcrawl-agnxxt:latest`
+- Agent Module: `crawler_agent/` (LangGraph SDK)
 
 ## GitHub Actions Secrets (Org-Level)
 When fixing Docker login failures:
