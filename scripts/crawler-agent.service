@@ -1,0 +1,33 @@
+#!/bin/bash
+# Production startup script for Web Crawler Agent
+
+[Unit]
+Description=Web Crawler Agent
+After=network.target
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/home/ubuntu/web-crawler
+Environment="PYTHONUNBUFFERED=1"
+Environment="STREAMLIT_GATHER_USAGE_STATS=false"
+ExecStart=/home/ubuntu/.local/bin/streamlit run examples/app.py --server.port=8501 --server.address=0.0.0.0 --server.headless=true
+Restart=always
+RestartSec=10
+
+# Security
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+ReadOnlyPaths=/
+
+# Resource limits
+MemoryMax=1G
+CPUQuota=50%
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

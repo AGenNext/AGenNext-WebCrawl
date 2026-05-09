@@ -1,0 +1,36 @@
+# Coolify Deployment Configuration
+
+## Git Settings
+- **Repository**: `https://github.com/AGenNext/AGenNext-WebCrawl`
+- **Branch**: `main`
+- **Build Pack**: `Python`
+
+## Pre-deploy Command
+```bash
+apt-get update && apt-get install -y python3-pip python3-venv && pip3 install streamlit --break-system-packages
+```
+
+## Start Command
+```bash
+streamlit run examples/app.py --server.port=8501 --server.address=0.0.0.0 --server.headless=true
+```
+
+## Environment Variables
+| Key | Value |
+|-----|-------|
+| `STREAMLIT_GATHER_USAGE_STATS` | `false` |
+| `LOG_LEVEL` | `WARNING` |
+
+## Port
+`8501`
+
+## Health Check
+- **HTTP Endpoint**: http://localhost:8501/_stcore/health
+- **Interval**: 30s
+
+## Resources
+- RAM: 1024 MB
+- CPU: 1
+
+## Domain
+Add domain `webcrawl.agnxxt.com` pointing to VPS

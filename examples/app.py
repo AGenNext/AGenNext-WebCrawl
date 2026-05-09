@@ -45,6 +45,7 @@ with st.sidebar:
     st.divider()
     
     # Navigation
+    st.page_link("pages/landing.py", label="🏠 Landing")
     st.page_link("pages/0_chat.py", label="💬 Chat")
     st.page_link("pages/1_crawler_dashboard.py", label="🌐 Crawler")
     st.page_link("pages/2_billing_dashboard.py", label="💳 Billing")
