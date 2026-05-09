@@ -127,14 +127,68 @@ class ExtractCodeSkill:
         return ContentTools.extract_code_blocks(markdown)
 
 
-# Skill registry
-AGENT_SKILLS = {
-    "analyze_seo": AnalyzeSEOSkill,
-    "summarize": SummarizeSkill,
-    "extract_images": ExtractImagesSkill,
-    "analyze_links": AnalyzeLinksSkill,
-    "export": ExportSkill,
-    "filter": FilterSkill,
-    "deduplicate": DeduplicateSkill,
-    "extract_code": ExtractCodeSkill,
-}
+class ScreenshotSkill:
+    """Take webpage screenshots"""
+    
+    name = "screenshot"
+    description = "Capture screenshot of webpage"
+    
+    @staticmethod
+    async def execute(url: str, full_page: bool = False) -> Dict[str, Any]:
+        """Execute screenshot capture"""
+        if full_page:
+            return await ScreenshotTools.capture_full_page(url)
+        else:
+            return await ScreenshotTools.capture_page(url)
+    
+    @staticmethod
+    async def capture_element(url: str, selector: str) -> Dict[str, Any]:
+        """Capture specific element"""
+        return await ScreenshotTools.capture_element(url, selector)
+
+
+class FormFillSkill:
+    """Fill forms and interact with web elements"""
+    
+    name = "form_fill"
+    description = "Fill and submit web forms"
+    
+    @staticmethod
+    async def execute(url: str, form_data: Dict[str, str],
+                    selectors: Dict[str, str] = None) -> Dict[str, Any]:
+        """Execute form filling"""
+        result = await FormTools.fill_form(url, form_data, selectors)
+        # Make sync for compatibility
+        return result
+    
+    @staticmethod
+    async def click(url: str, selector: str) -> Dict[str, Any]:
+        """Click element"""
+        return await FormTools.click(url, selector)
+
+
+class OCRSkill:
+    """OCR and document parsing"""
+    
+    name = "ocr"
+    description = "Extract text from images/documents - uses LiteParse/EasyOCR"
+    
+    @staticmethod
+    def parse(url: str = None, file: str = None) -> Dict[str, Any]:
+        """Parse document - tries multiple parsers"""
+        return OCRTools.parse_document(url=url, file_path=file)
+    
+    @staticmethod
+    def easyocr(image_path: str = None, image_data: bytes = None) -> Dict[str, Any]:
+        """Extract text using EasyOCR"""
+        return OCRTools.parse_with_easyocr(file_path=image_path, image_data=image_data)
+    
+    @staticmethod
+    def tesseract(image_path: str) -> Dict[str, Any]:
+        """Extract text using pytesseract"""
+        return OCRTools.extract_with_pytesseract(image_path)
+    
+    @staticmethod
+    def parse_pdf(file_path: str) -> Dict[str, Any]:
+        """Parse PDF with pdfplumber"""
+        return OCRTools.parse_pdf(file_path)

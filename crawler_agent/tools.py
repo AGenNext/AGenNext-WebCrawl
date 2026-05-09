@@ -247,6 +247,421 @@ class FilterTools:
         return result
 
 
+class ScreenshotTools:
+    """Screenshot and Visual Capture Tools"""
+    
+    @staticmethod
+    async def capture_page(url: str, driver=None) -> Dict[str, Any]:
+        """
+        Capture screenshot of a webpage
+        
+        Args:
+            url: URL to capture
+            driver: Optional Selenium WebDriver or Playwright page
+            
+        Returns:
+            Dict with screenshot base64, dimensions, title
+        """
+        result = {
+            "url": url,
+            "screenshot": None,
+            "title": None,
+            "width": 0,
+            "height": 0,
+            "timestamp": None,
+        }
+        
+        try:
+            if driver:
+                # Selenium-style
+                driver.get(url)
+                result["screenshot"] = driver.take_screenshot()
+                result["title"] = driver.title
+                window = driver.get_window_size()
+                result["width"] = window["width"]
+                result["height"] = window["height"]
+            else:
+                # Try Playwright
+                import asyncio
+                from playwright.async_api import async_playwright
+                
+                async with async_playwright() as p:
+                    browser = await p.chromium.launch()
+                    page = await browser.new_page()
+                    await page.goto(url)
+                    
+                    # Get metadata before screenshot
+                    result["title"] = await page.title()
+                    view_size = await page.viewport_size
+                    result["width"] = view_size["width"] if view_size else 0
+                    result["height"] = view_size["height"] if view_size else 0
+                    
+                    # Capture
+                    result["screenshot"] = await page.screenshot()
+                    await browser.close()
+            
+            # Add timestamp
+            from datetime import datetime
+            result["timestamp"] = datetime.utcnow().isoformat()
+            
+        except Exception as e:
+            result["error"] = str(e)
+        
+        return result
+    
+    @staticmethod
+    async def capture_element(url: str, selector: str, driver=None) -> Dict[str, Any]:
+        """Capture screenshot of specific element"""
+        
+        result = {
+            "url": url,
+            "selector": selector,
+            "screenshot": None,
+            "element_found": False,
+        }
+        
+        try:
+            import asyncio
+            from playwright.async_api import async_playwright
+            
+            async with async_playwright() as p:
+                browser = await p.chromium.launch()
+                page = await browser.new_page()
+                await page.goto(url)
+                
+                # Check if element exists
+                element = await page.query_selector(selector)
+                if element:
+                    result["element_found"] = True
+                    result["screenshot"] = await element.screenshot()
+                else:
+                    result["error"] = f"Element not found: {selector}"
+                
+                await browser.close()
+                
+        except Exception as e:
+            result["error"] = str(e)
+        
+        return result
+    
+    @staticmethod
+    async def capture_full_page(url: str) -> Dict[str, Any]:
+        """Capture full page screenshot (scrollable)"""
+        
+        result = {
+            "url": url,
+            "screenshot": None,
+            "full_height": 0,
+        }
+        
+        try:
+            import asyncio
+            from playwright.async_api import async_playwright
+            
+            async with async_playwright() as p:
+                browser = await p.chromium.launch()
+                page = await browser.new_page()
+                
+                # Get full height
+                await page.goto(url)
+                await page.evaluate("() => document.body.scrollHeight")
+                full_height = await page.evaluate("document.body.scrollHeight")
+                result["full_height"] = full_height
+                
+                # Set viewport and capture
+                await page.set_viewport_size({"width": 1920, "height": full_height})
+                result["screenshot"] = await page.screenshot(full_page=True)
+                
+                await browser.close()
+                
+        except Exception as e:
+            result["error"] = str(e)
+        
+        return result
+    
+    @staticmethod
+    def save_screenshot(screenshot_data: bytes, filepath: str) -> bool:
+        """Save screenshot to file"""
+        
+        try:
+            with open(filepath, "wb") as f:
+                f.write(screenshot_data)
+            return True
+        except Exception:
+            return False
+
+
+class FormTools:
+    """Form Filling and Interaction Tools"""
+    
+    @staticmethod
+    async def fill_form(url: str, form_data: Dict[str, str], 
+                    input_selectors: Dict[str, str] = None) -> Dict[str, Any]:
+        """
+        Fill and submit a form
+        
+        Args:
+            url: URL with form
+            form_data: Dict of field names to values
+            input_selectors: Optional custom selectors for fields
+            
+        Returns:
+            Dict with success status, filled fields, response
+        """
+        result = {
+            "url": url,
+            "success": False,
+            "filled_fields": [],
+            "response_url": None,
+            "errors": [],
+        }
+        
+        try:
+            from playwright.async_api import async_playwright
+            
+            async with async_playwright() as p:
+                browser = await p.chromium.launch()
+                page = await browser.new_page()
+                await page.goto(url)
+                
+                # Auto-detect selectors if not provided
+                if input_selectors is None:
+                    input_selectors = {}
+                
+                # Fill fields
+                for field_name, value in form_data.items():
+                    # Try different selector strategies
+                    selector = input_selectors.get(field_name)
+                    
+                    if selector:
+                        # Use provided selector
+                        try:
+                            await page.fill(selector, value)
+                            result["filled_fields"].append(field_name)
+                        except Exception as e:
+                            result["errors"].append(f"{field_name}: {str(e)}")
+                    else:
+                        # Auto-detect: try common patterns
+                        strategies = [
+                            f'name={field_name}',
+                            f'id={field_name}',
+                            f'[name="{field_name}"]',
+                            f'#{field_name}',
+                            f'input[placeholder*="{field_name}"]',
+                            f'label:has-text("{field_name}") >> input',
+                        ]
+                        
+                        for strategy in strategies:
+                            try:
+                                await page.fill(strategy, value)
+                                result["filled_fields"].append(field_name)
+                                break
+                            except Exception:
+                                continue
+                
+                # Submit form (try common submit buttons)
+                submit_selector = 'button[type="submit"], input[type="submit"], button:has-text("Submit"), button:has-text("Send")'
+                try:
+                    await page.click(submit_selector)
+                    await page.wait_for_load_state()
+                    result["response_url"] = page.url
+                    result["success"] = True
+                except Exception as e:
+                    result["errors"].append(f"Submit: {str(e)}")
+                
+                await browser.close()
+                
+        except Exception as e:
+            result["errors"].append(str(e))
+        
+        return result
+    
+    @staticmethod
+    async def fill_input(url: str, selector: str, value: str) -> Dict[str, Any]:
+        """Fill a specific input"""
+        
+        result = {
+            "url": url,
+            "selector": selector,
+            "success": False,
+        }
+        
+        try:
+            from playwright.async_api import async_playwright
+            
+            async with async_playwright() as p:
+                browser = await p.chromium.launch()
+                page = await browser.new_page()
+                await page.goto(url)
+                await page.fill(selector, value)
+                result["success"] = True
+                await browser.close()
+                
+        except Exception as e:
+            result["error"] = str(e)
+        
+        return result
+    
+    @staticmethod
+    async def click(url: str, selector: str) -> Dict[str, Any]:
+        """Click an element"""
+        
+        result = {
+            "url": url,
+            "selector": selector,
+            "success": False,
+        }
+        
+        try:
+            from playwright.async_api import async_playwright
+            
+            async with async_playwright() as p:
+                browser = await p.chromium.launch()
+                page = await browser.new_page()
+                await page.goto(url)
+                await page.click(selector)
+                await page.wait_for_load_state()
+                result["success"] = True
+                result["new_url"] = page.url
+                await browser.close()
+                
+        except Exception as e:
+            result["error"] = str(e)
+        
+        return result
+    
+    @staticmethod
+    async def select_option(url: str, selector: str, value: str) -> Dict[str, Any]:
+        """Select dropdown option"""
+        
+        result = {
+            "url": url,
+            "selector": selector,
+            "value": value,
+            "success": False,
+        }
+        
+        try:
+            from playwright.async_api import async_playwright
+            
+            async with async_playwright() as p:
+                browser = await p.chromium.launch()
+                page = await browser.new_page()
+                await page.goto(url)
+                await page.select_option(selector, value)
+                result["success"] = True
+                await browser.close()
+                
+        except Exception as e:
+            result["error"] = str(e)
+        
+        return result
+    
+    @staticmethod
+    async def check_checkbox(url: str, selector: str, checked: bool = True) -> Dict[str, Any]:
+        """Check or uncheck a checkbox"""
+        
+        result = {
+            "url": url,
+            "selector": selector,
+            "checked": checked,
+            "success": False,
+        }
+        
+        try:
+            from playwright.async_api import async_playwright
+            
+            async with async_playwright() as p:
+                browser = await p.chromium.launch()
+                page = await page.goto(url)
+                
+                if checked:
+                    await page.check(selector)
+                else:
+                    await page.uncheck(selector)
+                
+                result["success"] = True
+                await browser.close()
+                
+        except Exception as e:
+            result["error"] = str(e)
+        
+        return result
+    
+    @staticmethod
+    async def type_text(url: str, selector: str, text: str, delay: int = 0) -> Dict[str, Any]:
+        """Type text with optional delay between keystrokes"""
+        
+        result = {
+            "url": url,
+            "selector": selector,
+            "text": text,
+            "success": False,
+        }
+        
+        try:
+            from playwright.async_api import async_playwright
+            
+            async with async_playwright() as p:
+                browser = await p.chromium.launch()
+                page = await browser.new_page()
+                await page.goto(url)
+                await page.type(selector, text, delay=delay)
+                result["success"] = True
+                await browser.close()
+                
+        except Exception as e:
+            result["error"] = str(e)
+        
+        return result
+    
+    @staticmethod
+    def get_form_fields(html: str) -> Dict[str, List[Dict[str, str]]]:
+        """Extract form fields from HTML"""
+        
+        import re
+        
+        fields = {
+            "inputs": [],
+            "selects": [],
+            "textareas": [],
+            "checkboxes": [],
+            "buttons": [],
+        }
+        
+        # Input fields
+        input_pattern = r'<input[^>]+>'
+        for match in re.finditer(input_pattern, html):
+            attrs = match.group()
+            field = {}
+            
+            if 'name=' in attrs:
+                field["name"] = re.search(r'name="([^"]+)"', attrs).group(1)
+            if 'type=' in attrs:
+                field["type"] = re.search(r'type="([^"]+)"', attrs).group(1)
+            if 'id=' in attrs:
+                field["id"] = re.search(r'id="([^"]+)"', attrs).group(1)
+            if 'placeholder=' in attrs:
+                field["placeholder"] = re.search(r'placeholder="([^"]+)"', attrs).group(1)
+            
+            fields["inputs"].append(field)
+        
+        # Select fields
+        select_pattern = r'<select[^>]+name="([^"]+)"[^>]*>(.*?)</select>'
+        for match in re.finditer(select_pattern, html, re.DOTALL):
+            field = {"name": match.group(1), "options": []}
+            options = re.findall(r'<option[^>]*value="([^"]*)"[^>]*>([^<]*)', match.group(2))
+            field["options"] = [{"value": v, "text": t} for v, t in options]
+            fields["selects"].append(field)
+        
+        # Textareas
+        textarea_pattern = r'<textarea[^>]+name="([^"]+)"[^>]*>'
+        for match in re.finditer(textarea_pattern, html):
+            fields["textareas"].append({"name": match.group(1)})
+        
+        return fields
+
+
 # Tool registry for the agent
 AGENT_TOOLS = {
     "seo": SEOTools,
@@ -254,4 +669,231 @@ AGENT_TOOLS = {
     "links": LinkTools,
     "export": ExportTools,
     "filter": FilterTools,
+    "screenshot": ScreenshotTools,
+    "form": FormTools,
 }
+
+
+class OCRTools:
+    """OCR and Document Parsing Tools - Uses LiteParse from LlamaIndex"""
+    
+    @staticmethod
+    def parse_document(url: str = None, 
+                     file_path: str = None) -> Dict[str, Any]:
+        """
+        Parse document using LiteParse (open source from LlamaIndex)
+        
+        Note: For best results, also consider:
+        - EasyOCR for local OCR: pip install easyocr  
+        - pdfplumber for PDFs: pip install pdfplumber
+        
+        Args:
+            url: URL to parse
+            file_path: Local file path
+            
+        Returns:
+            Dict with parsed text and metadata
+        """
+        result = {"success": False, "text": None, "pages": [], "metadata": {}}
+        result["note"] = "For LiteParse, run: pip install lite-parse - OR use EasyOCR/pytesseract for local OCR"
+        
+        # Try LiteParse if available
+        try:
+            from lite_parse import LiteParse
+            lp = LiteParse()
+            if url:
+                docs = lp.parse(url)
+            elif file_path:
+                docs = lp.parse(file_path)
+            else:
+                result["error"] = "No URL or file path provided"
+                return result
+            
+            text_parts = [doc.text for doc in docs]
+            result["text"] = "\n\n".join(text_parts)
+            result["pages"] = [{"text": d.text} for d in docs]
+            result["success"] = True
+            result["parser"] = "lite-parse"
+            return result
+        except ImportError:
+            pass
+        
+        # Try lite-parse (alternative import)
+        try:
+            from liteparse import LiteParse
+            lp = LiteParse()
+            if url:
+                docs = lp.parse(url)
+            elif file_path:
+                docs = lp.parse(file_path)
+            else:
+                result["error"] = "No URL or file path provided"
+                return result
+            
+            text_parts = [doc.text for doc in docs]
+            result["text"] = "\n\n".join(text_parts)
+            result["pages"] = [{"text": d.text} for d in docs]
+            result["success"] = True
+            result["parser"] = "liteparse"
+            return result
+        except ImportError:
+            pass
+        
+        # Try llamaparse (from LlamaIndex)
+        try:
+            from llama_parse import LlamaParse
+            lp = LlamaParse()
+            if url:
+                docs = lp.load_data(url)
+            elif file_path:
+                docs = lp.load_data(file_path)
+            else:
+                result["error"] = "No URL or file path provided"
+                return result
+            
+            text_parts = [doc.text for doc in docs]
+            result["text"] = "\n\n".join(text_parts)
+            result["pages"] = [{"text": d.text} for d in docs]
+            result["success"] = True
+            result["parser"] = "llama-parse"
+            return result
+        except ImportError:
+            pass
+        
+        result["error"] = "No parser available. Install one of: lite-parse, llama-parse, easyocr, pdfplumber"
+        return result
+    
+    @staticmethod
+    def parse_with_easyocr(file_path: str = None,
+                        image_data: bytes = None) -> Dict[str, Any]:
+        """
+        Parse image using EasyOCR
+        
+        Args:
+            file_path: Path to image file
+            image_data: Image bytes
+            
+        Returns:
+            Dict with detected text and confidence
+        """
+        result = {
+            "success": False,
+            "text": [],
+            "annotations": [],
+        }
+        
+        try:
+            import easyocr
+            
+            reader = easyocr.Reader(['en'], gpu=False)
+            
+            if file_path:
+                detections = reader.readtext(file_path)
+            elif image_data:
+                import tempfile
+                import os
+                with tempfile.NamedTemporaryFile(delete=False, suffix='.png') as f:
+                    f.write(image_data)
+                    f.flush()
+                    temp_path = f.name
+                    detections = reader.readtext(temp_path)
+                    os.unlink(temp_path)
+            else:
+                result["error"] = "No file path or image data provided"
+                return result
+            
+            text_lines = []
+            for detection in detections:
+                bbox, text, confidence = detection
+                text_lines.append(text)
+                result["annotations"].append({
+                    "text": text,
+                    "confidence": confidence,
+                    "bbox": bbox,
+                })
+            
+            result["text"] = text_lines
+            result["success"] = True
+            
+        except ImportError:
+            result["error"] = "easyocr not installed. Install: pip install easyocr"
+        except Exception as e:
+            result["error"] = str(e)
+        
+        return result
+    
+    @staticmethod
+    def extract_with_pytesseract(image_source: str) -> Dict[str, Any]:
+        """
+        Extract text using pytesseract
+        
+        Args:
+            image_source: Path, URL, or base64
+            
+        Returns:
+            Dict with extracted text
+        """
+        result = {"success": False, "text": ""}
+        
+        try:
+            import pytesseract
+            from PIL import Image
+            import requests
+            from io import BytesIO
+            
+            if image_source.startswith('http'):
+                response = requests.get(image_source)
+                image = Image.open(BytesIO(response.content))
+            elif image_source.startswith('data:'):
+                import base64
+                import io
+                data = image_source.split(',')[1]
+                image = Image.open(io.BytesIO(base64.b64decode(data)))
+            else:
+                image = Image.open(image_source)
+            
+            text = pytesseract.image_to_string(image)
+            result["text"] = text.strip()
+            result["success"] = True
+            
+        except ImportError:
+            result["error"] = "pytesseract not installed. Install: pip install pytesseract"
+        except Exception as e:
+            result["error"] = str(e)
+        
+        return result
+    
+    @staticmethod
+    def parse_pdf(file_path: str) -> Dict[str, Any]:
+        """
+        Parse PDF using pdfplumber
+        
+        Args:
+            file_path: Path to PDF file
+            
+        Returns:
+            Dict with text per page
+        """
+        result = {"success": False, "pages": [], "page_count": 0}
+        
+        try:
+            import pdfplumber
+            
+            with pdfplumber.open(file_path) as pdf:
+                result["page_count"] = len(pdf.pages)
+                for i, page in enumerate(pdf.pages):
+                    text = page.extract_text()
+                    result["pages"].append({"page": i + 1, "text": text or ""})
+            
+            result["success"] = True
+            
+        except ImportError:
+            result["error"] = "pdfplumber not installed. Install: pip install pdfplumber"
+        except Exception as e:
+            result["error"] = str(e)
+        
+        return result
+
+
+# Add OCR to tool registry
+AGENT_TOOLS["ocr"] = OCRTools

@@ -45,6 +45,13 @@ curl -X POST "https://api.github.com/repos/AGenNext/AGenNext-WebCrawl/actions/wo
 - Check GitHub action logs when builds fail - don't assume
 - For Docker Hub login in actions: username goes in vars, token in secrets
 - Use explicit dates in GitHub compare URLs, not relative
+- Ask before adding new dependencies - don't assume what user wants
+
+### OCR Options (LiteParse)
+- **LiteParse**: `pip install lite-parse` (open source from LlamaIndex)
+- **EasyOCR**: `pip install easyocr` (local OCR)
+- **pdfplumber**: `pip install pdfplumber` (PDF parsing)
+- Try multiple imports, don't assume one works
 
 ### Making Agent Reliable
 1. **Always Test**: Don't say "working" without verifying - visit URL or use Playwright
