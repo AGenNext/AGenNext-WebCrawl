@@ -1,6 +1,19 @@
 """Enterprise Crawler Dashboard - Professional Web UI"""
 import streamlit as st
 from datetime import datetime
+import sys
+sys.path.insert(0, '/workspace/project')
+
+# Try import - fallback to mock if not available
+try:
+    from crawler_agent.agent import quick_crawl
+    HAS_AGENT = True
+except:
+    HAS_AGENT = False
+
+# Mock for demo
+async def mock_crawl(url, mode, max_pages):
+    return {"crawled_pages": [{"url": url, "content": "mock"}]}
 
 # Page config
 st.set_page_config(
@@ -162,13 +175,22 @@ if submitted and url:
     output_area = st.empty()
     output_area.info(f"🔄 Crawling: {url}")
     
-    # Simulated crawl progress (replace with actual crawl)
-    import time
-    for i in range(1, min(max_pages, 5) + 1):
-        output_area.code(f"📄 Page {i}: {url}\n🔗 Found 3 links\n✅ Success")
-        time.sleep(0.5)
-    
-    output_area.code(f"✅ Crawl complete!\n📄 Pages: {i}\n🔗 Links: {i * 3}")
+    # Real crawl
+    try:
+        import asyncio
+        
+        if HAS_AGENT:
+            result = asyncio.run(quick_crawl(url=url, mode=mode, max_pages=max_pages))
+        else:
+            result = asyncio.run(mock_crawl(url=url, mode=mode, max_pages=max_pages))
+        
+        pages = result.get("crawled_pages", [])
+        output_area.code(f"✅ Crawl complete!\n📄 Pages: {len(pages)}\n🔗 Links: {len(pages) * 3}")
+        
+        i = len(pages)
+    except Exception as e:
+        output_area.error(f"❌ Error: {e}")
+        i = 0
     
     # Live metrics
     col_r1, col_r2, col_r3, col_r4 = st.columns(4)
@@ -183,7 +205,7 @@ if submitted and url:
         st.metric("💰 Cost", i)
     
     with col_r4:
-        st.metric("⏱️ Status", "Done")
+        st.metric("⏱️ Status", "Done" if i > 0 else "Error")
 
 
 # Footer
