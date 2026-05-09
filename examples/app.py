@@ -135,4 +135,5 @@ st.caption(f"Web Crawler Service v0.1.0 • {datetime.now().year}")
 
 
 if __name__ == "__main__":
-    st.run()
+    import sys
+    sys.exit(0)  # Streamlit runs via CLI: streamlit run examples/app.py
