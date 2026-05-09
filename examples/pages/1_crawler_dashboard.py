@@ -15,36 +15,15 @@ if "authenticated" not in st.session_state:
     st.session_state.authenticated = False
 
 if "user" not in st.session_state:
-    st.session_state.user = None
+    # Auto-login as demo on first load
+    st.session_state.user = {"email": "demo@agennext.com", "plan": "free", "credits": 100}
 
 
 # ============== LOGIN CHECK ==============
 def check_auth():
-    """Require authentication"""
-    if not st.session_state.authenticated:
-        st.markdown("""
-        <div style='text-align:center; padding:3rem'>
-            <h1>🔐 Login Required</h1>
-            <p>Please login to access the crawler</p>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        with st.form("login_form"):
-            col1, col2 = st.columns(2)
-            with col1:
-                email = st.text_input("📧 Email")
-            with col2:
-                password = st.text_input("🔑 Password", type="password")
-            
-            if st.form_submit_button("Login", type="primary"):
-                # Demo creds
-                if email == "demo@agennext.com" and password == "demo123":
-                    st.session_state.authenticated = True
-                    st.session_state.user = {"email": email, "plan": "free", "credits": 100}
-                    st.rerun()
-                else:
-                    st.error("Invalid credentials (demo@agennext.com / demo123)")
-        st.stop()
+    """Optional login - demo mode available"""
+    if not st.session_state.get("user"):
+        st.session_state.user = {"email": "demo@agennext.com", "plan": "free", "credits": 100}
 
 
 # Check auth
