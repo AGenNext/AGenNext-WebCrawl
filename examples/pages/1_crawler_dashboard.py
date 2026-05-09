@@ -99,8 +99,8 @@ with st.sidebar:
     # Page nav
     st.subheader("📑 Pages")
     st.page_link("app.py", label="🏠 Dashboard", icon="🏠")
-    st.page_link("pages/2_crawl_history.py", label="📜 History", icon="📜")
-    st.page_link("pages/3_settings.py", label="⚙️ Settings", icon="⚙️")
+    st.page_link("pages/2_billing_dashboard.py", label="💳 Billing", icon="💳")
+    st.page_link("pages/3_account_settings.py", label="⚙️ Settings", icon="⚙️")
     
     st.divider()
     
