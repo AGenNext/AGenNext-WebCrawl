@@ -38,6 +38,6 @@ jobs:
     needs: build-and-push
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy via curl
+      - name: Deploy to Coolify
         run: |
-          curl -X POST "${{ secrets.COOLIFY_WEBHOOK }}"
+          curl -s -X POST "https://vps.openautonomyx.com/api/v1/deploy?uuid=hx8o7igiqdhzumxnykgcycl0&force=true"
