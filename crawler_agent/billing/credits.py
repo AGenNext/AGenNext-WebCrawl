@@ -126,31 +126,31 @@ def get_credit_manager() -> CreditManager:
     return _credit_manager
 
 
-# Price per page (customer pays)
+# Price per page = $0 (our cost is $0 - free for customers!)
 CREDIT_COSTS = {
-    "single": 10,
-    "depth": 20,
-    "sitemap": 25,
-    "knowledge": 50,
-    "deep": 100,
+    "single": 0,
+    "depth": 0,
+    "sitemap": 0,
+    "knowledge": 0,
+    "deep": 0,
 }
 
-# Feature multipliers
+# Features = free
 FEATURE_COSTS = {
-    "js_rendering": 1.5,
-    "screenshot": 2,
-    "pdf": 2,
-    "auth": 2,
-    "premium_proxy": 2,
+    "js_rendering": 0,
+    "screenshot": 0,
+    "pdf": 0,
+    "auth": 0,
+    "premium_proxy": 0,
 }
 
-# LLM cost per 1K tokens (cover server costs)
+# LLM = free
 LLM_RATES = {
-    "ollama/*": {"in": 0.001, "out": 0.001},
-    "llamafile/*": {"in": 0.001, "out": 0.001},
-    "openai/*": {"in": 0.001, "out": 0.001},
-    "anthropic/*": {"in": 0.001, "out": 0.001},
-    "gemini/*": {"in": 0.001, "out": 0.001},
+    "ollama/*": {"in": 0.0, "out": 0.0},
+    "llamafile/*": {"in": 0.0, "out": 0.0},
+    "openai/*": {"in": 0.0, "out": 0.0},
+    "anthropic/*": {"in": 0.0, "out": 0.0},
+    "gemini/*": {"in": 0.0, "out": 0.0},
 }
 
 
