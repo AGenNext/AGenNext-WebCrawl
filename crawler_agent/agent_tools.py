@@ -1,4 +1,7 @@
-"""All Tools for LangGraph Agent - Crawlers, OCR, RAG, etc."""
+"""All Tools for LangGraph Agent - Crawlers, OCR, RAG, etc.
+Includes LlamaIndex integrations: https://github.com/run-llama/llama_index/
+pip install llama-index
+"""
 from typing import Dict, Any, Callable, List
 import asyncio
 
@@ -10,6 +13,38 @@ from crawler_agent.tools import (
     ScreenshotTools, FormTools, OCRTools
 )
 from crawler_agent.skills import AGENT_SKILLS
+
+
+# ============== LLAMAINDEX INTEGRATIONS ==============
+
+# Try imports from llama-index integrations
+try:
+    from llama_index.readers import JSONReader, PDFReader, DocxReader
+    LLAMA_READERS = True
+except ImportError:
+    LLAMA_READERS = False
+
+try:
+    from llama_index.vector_stores import PineconeVectorStore, WeaviateVectorStore
+    LLAMA_VECTOR_STORES = True
+except ImportError:
+    LLAMA_VECTOR_STORES = False
+
+try:
+    from llama_index.embeddings import OpenAIEmbedding, HuggingFaceEmbedding, OllamaEmbedding
+    LLAMA_EMBEDDINGS = True
+except ImportError:
+    LLAMA_EMBEDDINGS = False
+
+try:
+    from llama_index.llms import OpenAI, Ollama, Anthropic
+    LLAMA_LLMS = True
+except ImportError:
+    LLAMA_LLMS = False
+
+
+# ============== RAG WITH LLAMAINDEX ==============
+
 from crawler_agent.rag import RAGFlow, LocalRAGFlow
 
 
