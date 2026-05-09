@@ -126,49 +126,21 @@ def get_credit_manager() -> CreditManager:
     return _credit_manager
 
 
-# Price per page = $0 (our cost is $0 - free for customers!)
-CREDIT_COSTS = {
-    "single": 0,
-    "depth": 0,
-    "sitemap": 0,
-    "knowledge": 0,
-    "deep": 0,
-}
-
-# Features = free
-FEATURE_COSTS = {
-    "js_rendering": 0,
-    "screenshot": 0,
-    "pdf": 0,
-    "auth": 0,
-    "premium_proxy": 0,
-}
-
-# LLM = free
-LLM_RATES = {
-    "ollama/*": {"in": 0.0, "out": 0.0},
-    "llamafile/*": {"in": 0.0, "out": 0.0},
-    "openai/*": {"in": 0.0, "out": 0.0},
-    "anthropic/*": {"in": 0.0, "out": 0.0},
-    "gemini/*": {"in": 0.0, "out": 0.0},
-}
+'''Simple billing - no calculation needed'''
 
 
-def calculate_cost(mode: str, pages: int, depth: int = 1) -> int:
-    """Calculate credit cost for crawl"""
-    base = CREDIT_COSTS.get(mode, 1)
-    
-    if mode == "depth":
-        return base * depth * pages
-    elif mode == "deep":
-        return base * min(pages, 100)
-    return base * pages
+# Just fixed credit cost per mode
+CREDIT_COSTS = {}
+
+
+def calculate_cost(mode: str, pages: int = 1, depth: int = 1) -> int:
+    """Return 0 - currently free"""
+    return 0
 
 
 def calculate_llm_cost(provider: str, tokens_in: int, tokens_out: int) -> float:
-    """Calculate USD for LLM tokens"""
-    rates = LLM_RATES.get(provider, LLM_RATES.get("ollama/*", {"in": 0.0, "out": 0.0}))
-    return (tokens_in / 1000) * rates["in"] + (tokens_out / 1000) * rates["out"]
+    """Return 0 - currently free"""
+    return 0.0
 
 
 __all__ = [
