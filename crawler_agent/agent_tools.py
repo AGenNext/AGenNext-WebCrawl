@@ -14,6 +14,7 @@ from crawler_agent.crawlers.crawl4ai import Crawl4AICrawler
 
 # ============== FIRECRAWL INTEGRATIONS ==============
 # Docs: https://docs.firecrawl.dev/
+# Examples: https://github.com/firecrawl/firecrawl/tree/main/examples
 # pip install firecrawl
 
 try:
@@ -23,16 +24,20 @@ try:
 except ImportError:
     FIRECRAWL_AVAILABLE = False
 
-# Firecrawl features
+# Firecrawl features (from examples)
 FIRE_CRAWL_FEATURES = {
-    "web": "Crawl websites",
-    "scrape": "Scrape single page", 
-    "extract": "Extract structured data",
-    "sitemap": "Parse sitemaps",
+    "crawl_url": "Crawl single URL",
+    "crawl_urls": "Crawl multiple URLs",
+    "crawl_sitemap": "Parse sitemap XML",
+    "scrape": "Scrape and extract from URL",
+    "extract": "Extract with schema using LLM",
+    "extract_markdown": "Extract as markdown",
     "search": "Web search",
-    "pdf": "Parse PDFs",
-    "youtube": "YouTube transcripts",
-    "github": "GitHub repository parsing",
+    "youtube": "YouTube to markdown",
+    "github": "GitHub repo to markdown",
+    "pdf": "PDF to markdown",
+    "bullets": "Extract bullet points",
+    "qa": "Extract Q&A pairs",
 }
 
 
