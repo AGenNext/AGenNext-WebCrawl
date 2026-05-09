@@ -1,236 +1,195 @@
-"""Main Crawler Dashboard Page
-
-Web UI for running web crawls with billing integration.
-Uses Crawl4AI and Firecrawl tools.
-"""
+"""Enterprise Crawler Dashboard - Professional Web UI"""
 import streamlit as st
-import asyncio
 from datetime import datetime
-import json
 
 # Page config
 st.set_page_config(
-    page_title="Web Crawler Dashboard",
+    page_title="Web Crawler | AGenNext",
     page_icon="🕷️",
     layout="wide",
+    initial_sidebar_state="expanded",
 )
 
-# SEO Meta Tags
+# Session init
+if "authenticated" not in st.session_state:
+    st.session_state.authenticated = False
+
+if "user" not in st.session_state:
+    st.session_state.user = None
+
+
+# ============== LOGIN CHECK ==============
+def check_auth():
+    """Require authentication"""
+    if not st.session_state.authenticated:
+        st.markdown("""
+        <div style='text-align:center; padding:3rem'>
+            <h1>🔐 Login Required</h1>
+            <p>Please login to access the crawler</p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        with st.form("login_form"):
+            col1, col2 = st.columns(2)
+            with col1:
+                email = st.text_input("📧 Email")
+            with col2:
+                password = st.text_input("🔑 Password", type="password")
+            
+            if st.form_submit_button("Login", type="primary"):
+                # Demo creds
+                if email == "demo@agennext.com" and password == "demo123":
+                    st.session_state.authenticated = True
+                    st.session_state.user = {"email": email, "plan": "free", "credits": 100}
+                    st.rerun()
+                else:
+                    st.error("Invalid credentials (demo@agennext.com / demo123)")
+        st.stop()
+
+
+# Check auth
+check_auth()
+
+
+# Custom CSS
 st.markdown("""
-<head>
-    <meta name="description" content="AI-powered web crawling service with Crawl4AI, Firecrawl. Extract content as markdown, JSON, PDF. Single page, depth crawl, sitemap, knowledge graph modes.">
-    <meta name="keywords" content="web crawler, web scraping, AI scraping, Crawl4AI, Firecrawl, data extraction, markdown crawler">
-    <meta property="og:title" content="AGenNext Web Crawler - AI-Powered Web Crawling">
-    <meta property="og:description" content="Powerful web crawling with multiple modes: single page, depth crawl, sitemap, knowledge graph, deep crawl. Uses Crawl4AI & Firecrawl.">
-    <meta property="og:type" content="website">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="AGenNext Web Crawler">
-    <meta name="twitter:description" content="AI-powered web crawling with Crawl4AI, Firecrawl. Extract content as markdown, JSON, PDF.">
-</head>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    
+    :root {
+        --primary: #3b82f6;
+        --primary-hover: #2563eb;
+        --bg-dark: #0f172a;
+        --bg-card: #1e293b;
+        --border: #334155;
+    }
+    
+    .stApp { font-family: 'Inter', sans-serif; }
+    
+    section[data-testid="stSidebar"] {
+        background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+    }
+    
+    div[data-testid="stMetric"] {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 1rem;
+    }
+    
+    .stTextInput > div > div > input,
+    .stSelectbox > div > div > div {
+        border-radius: 8px !important;
+    }
+    
+    .stButton > button {
+        border-radius: 8px;
+        font-weight: 600;
+    }
+</style>
 """, unsafe_allow_html=True)
 
 
-# ============== TOOL DEFINITIONS ==============
-CRAWL4AI_TOOLS = {
-    "Basic": {
-        "crawl4ai_crawl": "Crawl single URL",
-        "crawl4ai_crawl_many": "Crawl multiple URLs",
-        "crawl4ai_markdown": "Extract as markdown",
-        "crawl4ai_screenshot": "Take screenshot",
-        "crawl4ai_pdf": "Generate PDF",
-    },
-    "Extraction": {
-        "crawl4ai_with_css": "Extract with CSS selector",
-        "crawl4ai_with_xpath": "Extract with XPath",
-        "crawl4ai_with_json": "Extract JSON data",
-    },
-    "Deep Crawl": {
-        "crawl4ai_depth": "Depth-based crawling",
-        "crawl4ai_sitemap": "Sitemap extraction",
-        "crawl4ai_links": "Extract all links",
-    },
-    "Advanced": {
-        "crawl4ai_js": "Execute JavaScript",
-        "crawl4ai_wait": "Wait for elements",
-        "crawl4ai_auth": "Handle authentication",
-    },
-}
-
-FIRECRAWL_TOOLS = {
-    "Basic": {
-        "firecrawl_scrape": "Scrape URL",
-        "firecrawl_crawl": "Crawl website",
-        "firecrawl_map": "Sitemap mapping",
-    },
-    "Extraction": {
-        "firecrawl_extract": "Extract structured data",
-        "firecrawl_parse": "Parse with schema",
-        "firecrawl_search": "Search content",
-    },
+# ============== CONFIG ==============
+CRAWL_PROVIDERS = {
+    "crawl4ai": {"name": "🟡 Crawl4AI", "desc": "Open source"},
+    "firecrawl": {"name": "🔥 Firecrawl", "desc": "Cloud API"},
 }
 
 LLM_PROVIDERS = {
-    "openai": {
-        "name": "OpenAI",
-        "models": ["gpt-4o", "gpt-4o-mini", "o1-preview"],
-        "env": "OPENAI_API_KEY",
-    },
-    "anthropic": {
-        "name": "Anthropic Claude",
-        "models": ["claude-sonnet-4-20250514", "claude-opus-4-20250514", "claude-3-opus"],
-        "env": "ANTHROPIC_API_KEY",
-    },
-    "ollama": {
-        "name": "Ollama (Local)",
-        "models": ["llama3", "mistral", "codellama"],
-        "env": None,
-    },
+    "openai": {"name": "🤖 OpenAI", "models": ["gpt-4o", "o1"]},
+    "anthropic": {"name": "🧠 Claude", "models": ["sonnet-4", "opus"]},
+    "ollama": {"name": "💻 Ollama", "models": ["llama3", "mistral"]},
 }
 
 CRAWL_MODES = {
-    "single": "Single Page - Crawl one URL",
-    "depth": "Depth Crawl - Crawl with depth limit",
-    "sitemap": "Sitemap - Parse sitemap.xml",
-    "knowledge": "Knowledge Graph - Build entity graph",
-    "deep": "Deep Crawl - Crawl all links recursively",
+    "single": "📄 Single Page",
+    "depth": "📊 Depth Crawl",
+    "sitemap": "🗺️ Sitemap",
+    "knowledge": "🔗 Knowledge Graph",
+    "deep": "🕸️ Deep Crawl",
 }
 
 
 # ============== SIDEBAR ==============
 with st.sidebar:
-    st.header("🕷️ AGenNext Crawler")
-    
-    # Provider selection
-    st.caption("**Provider:**")
-    provider = st.radio(
-        "Select Provider",
-        ["crawl4ai", "firecrawl"],
-        format_func=lambda x: {
-            "crawl4ai": "🟡 Crawl4AI (Open Source)",
-            "firecrawl": "🔥 Firecrawl Cloud",
-        }.get(x, x)
-    )
-    
-    # LLM Provider
-    st.caption("**LLM for Extraction:**")
-    llm_provider = st.radio(
-        "Select LLM",
-        list(LLM_PROVIDERS.keys()),
-        format_func=lambda x: LLM_PROVIDERS[x]["name"],
-        horizontal=True,
-    )
-    
-    # Show tools for selected provider
+    st.markdown("<h2 style='color:#3b82f6'>🕷️ AGenNext</h2>", unsafe_allow_html=True)
+    st.caption("**Enterprise Web Crawler**")
     st.divider()
-    st.caption("**Available Tools:**")
     
-    if provider == "crawl4ai":
-        for category, tools in CRAWL4AI_TOOLS.items():
-            with st.expander(category, expanded=False):
-                for tool_name, tool_desc in tools.items():
-                    st.caption(f"**{tool_name}**: {tool_desc}")
-    else:
-        for category, tools in FIRECRAWL_TOOLS.items():
-            with st.expander(category, expanded=False):
-                for tool_name, tool_desc in tools.items():
-                    st.caption(f"**{tool_name}**: {tool_desc}")
+    # Quick config
+    st.subheader("⚙️ Configuration")
+    provider = st.selectbox("Crawler", list(CRAWL_PROVIDERS.keys()), format_func=lambda x: CRAWL_PROVIDERS[x]["name"])
+    llm = st.selectbox("LLM", list(LLM_PROVIDERS.keys()), format_func=lambda x: LLM_PROVIDERS[x]["name"])
     
-    # User info
     st.divider()
-    st.caption("**Account:** Demo User")
-    st.caption("**Plan:** Free")
-    st.caption("**Credits:** 100")
+    
+    # Account from session
+    user = st.session_state.user or {"plan": "free", "credits": 100}
+    st.subheader("👤 Account")
+    st.metric("Plan", user.get("plan", "Free").title())
+    st.metric("Credits", user.get("credits", 100))
+    
+    # Logout
+    if st.button("🚪 Logout"):
+        st.session_state.authenticated = False
+        st.session_state.user = None
+        st.rerun()
 
 
-# ============== MAIN CONTENT ==============
-st.header("🌐 New Crawl")
+# ============== MAIN ==============
+st.title("🌐 New Web Crawl")
+st.markdown("Enterprise-grade web scraping with LangGraph SDK")
 
+# Main form
 with st.form("crawl_form"):
-    # URL input
-    url = st.text_input(
-        "Website URL",
-        placeholder="https://example.com",
-        help="Enter the URL to crawl"
-    )
-    
-    # Mode selection
-    col1, col2 = st.columns(2)
+    col1, col2 = st.columns([3, 1])
     
     with col1:
-        mode = st.selectbox(
-            "Crawl Mode",
-            ["single", "depth", "sitemap", "knowledge", "deep"],
-            format_func=lambda x: {
-                "single": "Single Page",
-                "depth": "Depth Crawl",
-                "sitemap": "Sitemap",
-                "knowledge": "Knowledge Graph",
-                "deep": "Deep Crawl",
-            }.get(x, x)
-        )
+        url = st.text_input("🌐 Website URL", placeholder="https://example.com")
     
     with col2:
-        if mode in ["depth", "deep"]:
-            max_depth = st.number_input("Max Depth", min_value=1, max_value=10, value=2)
-        else:
-            max_depth = 1
-        
-        max_pages = st.slider("Max Pages", 1, 100, 10)
+        mode = st.selectbox("📊 Mode", list(CRAWL_MODES.keys()), format_func=lambda x: CRAWL_MODES[x])
+    
+    # Options
+    col3, col4, col5 = st.columns(3)
+    
+    with col3:
+        max_pages = st.slider("📄 Max Pages", 1, 100, 10)
+    
+    with col4:
+        max_depth = st.number_input("📏 Depth", 1, 10, 2)
+    
+    with col5:
+        timeout = st.number_input("⏱️ Timeout (s)", 10, 300, 60)
     
     # Submit
-    submitted = st.form_submit_button("🚀 Start Crawl", use_container_width=True)
+    col_submit, _ = st.columns([1, 3])
+    with col_submit:
+        submitted = st.form_submit_button("🚀 Start Crawl", use_container_width=True, type="primary")
 
 
-# Process crawl
+# Process
 if submitted and url:
-    with st.spinner(f"Crawling {url}..."):
-        try:
-            # Simulated result for demo
-            st.session_state["crawl_url"] = url
-            st.session_state["crawl_mode"] = mode
-            st.session_state["crawl_status"] = "completed"
-            
-            st.success(f"✅ Crawl started! Mode: {mode}, Depth: {max_depth}, Max Pages: {max_pages}")
-            
-        except Exception as e:
-            st.error(f"Error: {str(e)}")
+    st.success(f"✅ Crawl started: {url}")
+    st.info(f"Mode: {CRAWL_MODES[mode]} | Pages: {max_pages} | Depth: {max_depth}")
 
 
-# ============== RESULTS ==============
-if "crawl_url" in st.session_state:
-    st.divider()
-    st.header("📄 Results")
-    
-    # Tabs for different views
-    tab1, tab2, tab3, tab4 = st.tabs(["📊 Overview", "📝 Content", "🔗 Links", "📋 Raw JSON"])
-    
-    with tab1:
-        st.success(f"✅ Crawl completed!")
-        st.metric("Pages Crawled", st.session_state.get("crawl_pages", 1))
-        st.metric("Links Found", st.session_state.get("crawl_links", 0))
-        st.metric("Images Found", st.session_state.get("crawl_images", 0))
-    
-    with tab2:
-        st.markdown("### Crawled Content")
-        st.info("Crawled content will appear here...")
+# Results preview
+if "url" in locals() and submitted:
+    with st.expander("📊 Results", expanded=True):
+        col_r1, col_r2, col_r3 = st.columns(3)
         
-        if st.session_state.get("crawl_status") == "completed":
-            st.text_area("Content", value=f"Crawled: {st.session_state.get('crawl_url')}", height=300)
-    
-    with tab3:
-        st.markdown("### Extracted Links")
-        st.warning("No links found yet")
-    
-    with tab4:
-        st.markdown("### Raw JSON")
-        st.json({
-            "url": st.session_state.get("crawl_url", ""),
-            "mode": st.session_state.get("crawl_mode", ""),
-            "status": st.session_state.get("crawl_status", ""),
-            "provider": provider,
-        })
+        with col_r1:
+            st.metric("Pages", 0)
+        
+        with col_r2:
+            st.metric("Links", 0)
+        
+        with col_r3:
+            st.metric("Status", "Ready")
 
 
 # Footer
 st.divider()
-st.caption("🔵 Version 0.1.0 | Powered by Crawl4AI & Firecrawl")
+st.caption("🔵 Powered by LangGraph SDK • Crawl4AI • Firecrawl")

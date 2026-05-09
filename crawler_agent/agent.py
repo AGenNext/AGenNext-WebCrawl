@@ -5,11 +5,11 @@ from crawler_agent.state import CrawlState, get_initial_state
 from crawler_agent.graph import create_crawl_graph, run_crawl
 from crawler_agent.config import CrawlMode, CrawlProvider
 from crawler_agent.billing import UnifiedBilling, get_billing
-from crawler_agent.self_improve import SelfImprovingAgent, get_self_improving_agent
+from crawler_agent.self_improve import get_self_improving_agent
 
 
 class CrawlAgent:
-    """Web Crawling Agent using LangGraph SDK with self-improvement"""
+    """Web Crawling Agent using LangGraph SDK"""
     
     def __init__(
         self,
