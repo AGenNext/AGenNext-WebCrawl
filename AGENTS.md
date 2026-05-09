@@ -36,3 +36,10 @@ curl -X POST "https://api.github.com/repos/AGenNext/AGenNext-WebCrawl/actions/wo
   -H "Authorization: Bearer ${GITHUB_TOKEN}" \
   -d '{"ref": "main"}'
 ```
+
+## Agent Guidelines
+- Always verify app works after changes - use Playwright or visit the URL
+- After adding new files, trigger redeploy before confirming "it works"
+- Check GitHub action logs when builds fail - don't assume
+- For Docker Hub login in actions: username goes in vars, token in secrets
+- Use explicit dates in GitHub compare URLs, not relative
