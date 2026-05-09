@@ -126,37 +126,31 @@ def get_credit_manager() -> CreditManager:
     return _credit_manager
 
 
-# Price per page (VALUE pricing - our cost is $0)
-# We're selling convenience, reliability, UI on free infra
+# Price per page (customer pays - we just cover server cost)
 CREDIT_COSTS = {
-    "single": 50,      # $0.05 - simple crawl
-    "depth": 100,     # $0.10 - recursive
-    "sitemap": 150,   # $0.15 - sitemap extraction
-    "knowledge": 250, # $0.25 - LLM extraction
-    "deep": 500,      # $0.50 - full deep crawl
+    "single": 1,       # 1 credit
+    "depth": 2,        
+    "sitemap": 2,     
+    "knowledge": 3,  
+    "deep": 5,        
 }
 
 # Feature multipliers
 FEATURE_COSTS = {
-    "js_rendering": 2.0,
-    "screenshot": 3,
-    "pdf": 5,
-    "auth": 5,
-    "premium_proxy": 3,
+    "js_rendering": 1.5,
+    "screenshot": 2,
+    "pdf": 2,
+    "auth": 2,
+    "premium_proxy": 2,
 }
 
-# LLM cost per 1K tokens (USD) - $0 for open source!
+# LLM cost per 1K tokens (cover server costs)
 LLM_RATES = {
-    # Open source = FREE
-    "ollama/llama3": {"in": 0.0, "out": 0.0},
-    "ollama/mistral": {"in": 0.0, "out": 0.0},
-    "ollama/codellama": {"in": 0.0, "out": 0.0},
-    "llamafile/*": {"in": 0.0, "out": 0.0},
-    
-    # Cloud LLMs (optional)
-    "openai/gpt-4o": {"in": 0.0025, "out": 0.01},
-    "anthropic/claude": {"in": 0.003, "out": 0.015},
-    "gemini/*": {"in": 0.0, "out": 0.0},  # Free tier
+    "ollama/*": {"in": 0.001, "out": 0.001},
+    "llamafile/*": {"in": 0.001, "out": 0.001},
+    "openai/*": {"in": 0.001, "out": 0.001},
+    "anthropic/*": {"in": 0.001, "out": 0.001},
+    "gemini/*": {"in": 0.001, "out": 0.001},
 }
 
 
