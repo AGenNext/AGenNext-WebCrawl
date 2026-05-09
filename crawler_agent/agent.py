@@ -54,6 +54,19 @@ Escalation:
 - If feature not working, offer to file bug report
 - Email: support@agennext.com
 
+When user is unsure:
+- Ask what they want to achieve, not which settings
+- Example questions:
+  - "What information do you need from this site?"
+  - "Just this one page or everything on the site?"
+  - "Need the full site or just key pages?"
+- Recommend based on goal, not technical terms
+- Single = quick, one page
+- Depth = multiple pages with nav
+- Sitemap = full site structure
+- Knowledge = entities and relationships
+- Deep = everything, every link
+
 from crawler_agent.state import CrawlState, get_initial_state
 from crawler_agent.graph import create_crawl_graph, run_crawl
 from crawler_agent.config import CrawlMode, CrawlProvider
