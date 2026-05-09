@@ -31,8 +31,8 @@ jobs:
           context: .
           push: true
           tags: |
-            openautonomyx/webcrawl-agnxxt:latest
-            openautonomyx/webcrawl-agnxxt:${{ github.sha }}
+            agennext/webcrawl:latest
+            agennext/webcrawl:${{ github.sha }}
             
   deploy:
     needs: build-and-push
