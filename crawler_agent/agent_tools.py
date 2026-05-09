@@ -204,6 +204,7 @@ def firecrawl_pdf(url: str) -> Dict[str, Any]:
 
 # ============== CRAWL4AI INTEGRATIONS ==============
 # Repo: https://github.com/unclecode/crawl4ai/
+# Docs: https://github.com/unclecode/crawl4ai/tree/main/docs/examples
 # pip install crawl4ai
 
 try:
@@ -212,81 +213,127 @@ try:
 except ImportError:
     CRAWL4AI_AVAILABLE = False
 
-# Crawl4AI features
+# Crawl4AI features (from docs/examples)
 CRAWL4AI_FEATURES = {
     "crawl": "Crawl single URL",
-    "crawl_multiple": "Crawl multiple URLs",
-    "crawl_with_schema": "Crawl with output schema",
-    "crawl_sitemap": "Crawl from sitemap",
-    "crawl_javascript": "Crawl with JS rendering",
-    "lazy_load": "Handle lazy loading",
-    "crawl_all": "Crawl all links found",
+    "crawl_urls": "Crawl URLs from list",
+    "crawl_sitemap": "Crawl sitemap",
+    "crawl_all": "Crawl all links",
+    "crawl_markdown": "Extract as markdown",
+    "crawl_html": "Extract as HTML",
+    "crawl_text": "Extract as text only",
+    "crawl_json": "Extract as JSON schema",
+    "js_rendering": "JavaScript rendering",
+    "lazy_loading": "Handle lazy loading",
+    "wait_for": "Wait for selector",
+    "wait_after_scroll": "Wait after scroll",
+    "exclude_selector": "Exclude elements",
+    "keep_attributes": "Keep attributes",
+    "proxy": "Use proxy",
+    "timeout": "Set timeout",
+    "max_concurrent": "Max concurrent",
 }
 
 
 # ============== CRAWL4AI TOOLS ==============
 
-def crawl4ai_crawl(url: str, options: Dict = None) -> Dict[str, Any]:
-    """Crawl single URL with Crawl4AI"""
+def crawl4ai_crawl(url: str, **kwargs) -> Dict[str, Any]:
+    """Crawl URL with Crawl4AI"""
     if not CRAWL4AI_AVAILABLE:
         return {"error": "pip install crawl4ai"}
     try:
-        result = AsyncCrawler().crawl(url, **(options or {}))
+        result = AsyncCrawler().crawl(url, **kwargs)
         return {"success": True, "data": result}
     except Exception as e:
         return {"error": str(e)}
 
 
-def crawl4ai_crawl_urls(urls: List[str]) -> Dict[str, Any]:
-    """Crawl multiple URLs"""
+def crawl4ai_markdown(url: str) -> Dict[str, Any]:
+    """Extract as markdown"""
     if not CRAWL4AI_AVAILABLE:
         return {"error": "pip install crawl4ai"}
     try:
-        result = AsyncCrawler().crawl_multiple(urls)
+        result = AsyncCrawler().crawl(url, output_format="markdown")
+        return {"success": True, "markdown": result.markdown}
+    except Exception as e:
+        return {"error": str(e)}
+
+
+def crawl4ai_html(url: str) -> Dict[str, Any]:
+    """Extract as HTML"""
+    if not CRAWL4AI_AVAILABLE:
+        return {"error": "pip install crawl4ai"}
+    try:
+        result = AsyncCrawler().crawl(url, output_format="html")
+        return {"success": True, "html": result.html}
+    except Exception as e:
+        return {"error": str(e)}
+
+
+def crawl4ai_text(url: str) -> Dict[str, Any]:
+    """Extract as text only"""
+    if not CRAWL4AI_AVAILABLE:
+        return {"error": "pip install crawl4ai"}
+    try:
+        result = AsyncCrawler().crawl(url, output_format="text")
+        return {"success": True, "text": result.text}
+    except Exception as e:
+        return {"error": str(e)}
+
+
+def crawl4ai_json(url: str, schema: Dict) -> Dict[str, Any]:
+    """Extract as JSON with schema"""
+    if not CRAWL4AI_AVAILABLE:
+        return {"error": "pip install crawl4ai"}
+    try:
+        result = AsyncCrawler().crawl(url, output_format="json", schema=schema)
+        return {"success": True, "json": result.json}
+    except Exception as e:
+        return {"error": str(e)}
+
+
+def crawl4ai_js(url: str, wait_for: str = None) -> Dict[str, Any]:
+    """JavaScript rendering, wait for selector"""
+    if not CRAWL4AI_AVAILABLE:
+        return {"error": "pip install crawl4ai"}
+    try:
+        kwargs = {"js": True}
+        if wait_for:
+            kwargs["wait_for"] = wait_for
+        result = AsyncCrawler().crawl(url, **kwargs)
         return {"success": True, "data": result}
     except Exception as e:
         return {"error": str(e)}
 
 
-def crawl4ai_sitemap(url: str) -> Dict[str, Any]:
-    """Crawl from sitemap"""
+def crawl4ai_lazy(url: str, wait_scroll: int = 1000) -> Dict[str, Any]:
+    """Handle lazy loading, wait after scroll"""
     if not CRAWL4AI_AVAILABLE:
         return {"error": "pip install crawl4ai"}
     try:
-        result = AsyncCrawler().crawl_sitemap(url)
+        result = AsyncCrawler().crawl(url, js=True, wait_after_scroll=wait_scroll)
         return {"success": True, "data": result}
     except Exception as e:
         return {"error": str(e)}
 
 
-def crawl4ai_javascript(url: str) -> Dict[str, Any]:
-    """Crawl with JavaScript rendering"""
+def crawl4ai_custom(url: str, 
+                 exclude_selector: str = None,
+                 keep_attributes: bool = False,
+                 timeout: int = 30,
+                 proxy: str = None) -> Dict[str, Any]:
+    """Custom crawl with options"""
     if not CRAWL4AI_AVAILABLE:
         return {"error": "pip install crawl4ai"}
     try:
-        result = AsyncCrawler().crawl(url, js=True)
-        return {"success": True, "data": result}
-    except Exception as e:
-        return {"error": str(e)}
-
-
-def crawl4ai_with_schema(url: str, schema: Dict) -> Dict[str, Any]:
-    """Crawl with output schema"""
-    if not CRAWL4AI_AVAILABLE:
-        return {"error": "pip install crawl4ai"}
-    try:
-        result = AsyncCrawler().crawl_with_schema(url, schema)
-        return {"success": True, "data": result}
-    except Exception as e:
-        return {"error": str(e)}
-
-
-def crawl4ai_all(url: str) -> Dict[str, Any]:
-    """Crawl all links from URL"""
-    if not CRAWL4AI_AVAILABLE:
-        return {"error": "pip install crawl4ai"}
-    try:
-        result = AsyncCrawler().crawl_all(url)
+        kwargs = {"timeout": timeout}
+        if exclude_selector:
+            kwargs["exclude_selector"] = exclude_selector
+        if keep_attributes:
+            kwargs["keep_attributes"] = ["href", "src"]
+        if proxy:
+            kwargs["proxy"] = proxy
+        result = AsyncCrawler().crawl(url, **kwargs)
         return {"success": True, "data": result}
     except Exception as e:
         return {"error": str(e)}
@@ -511,11 +558,13 @@ AGENT_TOOLS = {
     
     # Crawl4AI
     "crawl4ai_crawl": crawl4ai_crawl,
-    "crawl4ai_crawl_urls": crawl4ai_crawl_urls,
-    "crawl4ai_sitemap": crawl4ai_sitemap,
-    "crawl4ai_javascript": crawl4ai_javascript,
-    "crawl4ai_with_schema": crawl4ai_with_schema,
-    "crawl4ai_all": crawl4ai_all,
+    "crawl4ai_markdown": crawl4ai_markdown,
+    "crawl4ai_html": crawl4ai_html,
+    "crawl4ai_text": crawl4ai_text,
+    "crawl4ai_json": crawl4ai_json,
+    "crawl4ai_js": crawl4ai_js,
+    "crawl4ai_lazy": crawl4ai_lazy,
+    "crawl4ai_custom": crawl4ai_custom,
     
     # Original
     "crawl_firecrawl": crawl_firecrawl,
