@@ -126,13 +126,14 @@ def get_credit_manager() -> CreditManager:
     return _credit_manager
 
 
-# Price per page (competitive: $0.01-0.05/page)
+# Price per page (VALUE pricing - our cost is $0)
+# We're selling convenience, reliability, UI on free infra
 CREDIT_COSTS = {
-    "single": 10,      # $0.01/page
-    "depth": 20,       # $0.02/page/level  
-    "sitemap": 30,     # $0.03 - sitemap parse
-    "knowledge": 50,   # $0.05 - LLM extraction
-    "deep": 100,       # $0.10 - full crawl
+    "single": 50,      # $0.05 - simple crawl
+    "depth": 100,     # $0.10 - recursive
+    "sitemap": 150,   # $0.15 - sitemap extraction
+    "knowledge": 250, # $0.25 - LLM extraction
+    "deep": 500,      # $0.50 - full deep crawl
 }
 
 # Feature multipliers
