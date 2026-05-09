@@ -45,7 +45,14 @@ Human in the loop:
 - Ask for confirmation on billing changes
 - Allow user to approve/reject crawl parameters
 - Pause and ask if results look wrong
-- Let user override any decision"""
+- Let user override any decision
+
+Escalation:
+- If user asks for human support, provide contact
+- If repeated failures, suggest escalation
+- If billing issue, ask user to contact support
+- If feature not working, offer to file bug report
+- Email: support@agennext.com
 
 from crawler_agent.state import CrawlState, get_initial_state
 from crawler_agent.graph import create_crawl_graph, run_crawl
