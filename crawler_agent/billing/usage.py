@@ -15,6 +15,11 @@ class CrawlUsage:
     links_found: int = 0
     data_mb: float = 0.0
     duration_ms: int = 0
+    # LLM Token usage
+    tokens_in: int = 0
+    tokens_out: int = 0
+    llm_provider: str = ""
+    llm_model: str = ""
 
 
 @dataclass
@@ -27,6 +32,13 @@ class MonthlyUsage:
     total_calls: int = 0
     data_mb: float = 0.0
     cost_usd: float = 0.0
+    # LLM token totals
+    total_tokens_in: int = 0
+    total_tokens_out: int = 0
+    
+    @property
+    def total_tokens(self) -> int:
+        return self.total_tokens_in + self.total_tokens_out
     
     @property
     def period(self) -> str:
