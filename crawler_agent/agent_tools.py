@@ -1,7 +1,8 @@
 """All Tools for LangGraph Agent - Crawlers, OCR, RAG, etc.
 LlamaIndex: https://github.com/run-llama/llama_index/
 LlamaHub: https://llamahub.ai/
-pip install llama-index
+Firecrawl: https://github.com/mendableai/firecrawl/
+pip install llama-index firecrawl
 """
 from typing import Dict, Any, Callable, List
 import asyncio
@@ -9,6 +10,34 @@ import asyncio
 # Import all integrations
 from crawler_agent.crawlers.firecrawl import FirecrawlCrawler
 from crawler_agent.crawlers.crawl4ai import Crawl4AICrawler
+
+
+# ============== FIRECRAWL INTEGRATIONS ==============
+# Docs: https://docs.firecrawl.dev/
+# pip install firecrawl
+
+try:
+    import firecrawl
+    from firecrawl import FirecrawlApp
+    FIRECRAWL_AVAILABLE = True
+except ImportError:
+    FIRECRAWL_AVAILABLE = False
+
+# Firecrawl features
+FIRE_CRAWL_FEATURES = {
+    "web": "Crawl websites",
+    "scrape": "Scrape single page", 
+    "extract": "Extract structured data",
+    "sitemap": "Parse sitemaps",
+    "search": "Web search",
+    "pdf": "Parse PDFs",
+    "youtube": "YouTube transcripts",
+    "github": "GitHub repository parsing",
+}
+
+
+# ============== LLAMAINDEX INTEGRATIONS ==============
+# Docs: https://llamahub.ai/
 from crawler_agent.tools import (
     SEOTools, ContentTools, LinkTools, ExportTools, FilterTools,
     ScreenshotTools, FormTools, OCRTools
