@@ -126,13 +126,13 @@ def get_credit_manager() -> CreditManager:
     return _credit_manager
 
 
-# Price per page (customer pays - we just cover server cost)
+# Price per page (customer pays)
 CREDIT_COSTS = {
-    "single": 1,       # 1 credit
-    "depth": 2,        
-    "sitemap": 2,     
-    "knowledge": 3,  
-    "deep": 5,        
+    "single": 10,
+    "depth": 20,
+    "sitemap": 25,
+    "knowledge": 50,
+    "deep": 100,
 }
 
 # Feature multipliers
