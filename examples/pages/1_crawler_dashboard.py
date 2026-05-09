@@ -15,6 +15,20 @@ st.set_page_config(
     layout="wide",
 )
 
+# SEO Meta Tags
+st.markdown("""
+<head>
+    <meta name="description" content="AI-powered web crawling service with Crawl4AI, Firecrawl. Extract content as markdown, JSON, PDF. Single page, depth crawl, sitemap, knowledge graph modes.">
+    <meta name="keywords" content="web crawler, web scraping, AI scraping, Crawl4AI, Firecrawl, data extraction, markdown crawler">
+    <meta property="og:title" content="AGenNext Web Crawler - AI-Powered Web Crawling">
+    <meta property="og:description" content="Powerful web crawling with multiple modes: single page, depth crawl, sitemap, knowledge graph, deep crawl. Uses Crawl4AI & Firecrawl.">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="AGenNext Web Crawler">
+    <meta name="twitter:description" content="AI-powered web crawling with Crawl4AI, Firecrawl. Extract content as markdown, JSON, PDF.">
+</head>
+""", unsafe_allow_html=True)
+
 
 # ============== TOOL DEFINITIONS ==============
 CRAWL4AI_TOOLS = {
@@ -227,22 +241,6 @@ if "crawl_url" in st.session_state:
 # Footer
 st.divider()
 st.caption(f"🔵 Version 0.1.0 | Powered by Crawl4AI & Firecrawl")
-            format_func=lambda x: {
-                "single": "Single Page",
-                "depth": "Depth Crawl",
-                "sitemap": "Sitemap",
-                "knowledge": "Knowledge Graph",
-                "deep": "Deep Crawl",
-            }.get(x, x)
-        )
-    
-    with col2:
-        depth = st.number_input("Depth", min_value=1, max_value=10, value=2)
-    
-    # Options
-    with st.expander("Advanced Options"):
-        max_pages = st.slider("Max Pages", 1, 100, 10)
-        max_urls = st.slider("Max URLs", 10, 1000, 100)
     
     # Submit
     submitted = st.form_submit_button("🚀 Start Crawl", use_container_width=True)
