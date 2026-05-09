@@ -61,3 +61,9 @@ curl -X POST "https://api.github.com/repos/AGenNext/AGenNext-WebCrawl/actions/wo
 5. **Ask Before Saving**: Confirm with user before writing to documentation files
 6. **Trust but Verify**: Even if code pushed, verify deployment actually worked
 7. **No Assumptions**: If unsure, ask user instead of guessing
+
+### Billing Rules (IMPORTANT)
+- **NEVER change pricing without explicit user approval**
+- If user asks to change price, ask for the exact numbers
+- Don't guess or assume - always confirm before modifying billing logic
+- Add reminders in code if needed
