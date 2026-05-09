@@ -9,6 +9,11 @@ services:
     environment:
       - STREAMLIT_SERVER_PORT=8501
       - STREAMLIT_SERVER_HEADLESS=true
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.webcrawl.rule=Host(`webcrawl.agnxxt.com`)
+      - traefik.http.routers.webcrawl.entrypoints=http
+      - traefik.http.services.webcrawl.loadbalancer.server.port=8501
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8501/_stcore/health"]
