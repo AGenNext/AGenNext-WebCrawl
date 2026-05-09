@@ -2,7 +2,7 @@
 LlamaIndex: https://github.com/run-llama/llama_index/
 LlamaHub: https://llamahub.ai/
 Firecrawl: https://github.com/mendableai/firecrawl/
-Crawl4AI: https://github.com/unclecode/crawl4ai/
+Crawl4AI: https://github.com/unclecode/crawl4ai
 pip install llama-index firecrawl crawl4ai
 """
 from typing import Dict, Any, Callable, List
@@ -203,15 +203,27 @@ def firecrawl_pdf(url: str) -> Dict[str, Any]:
 
 
 # ============== CRAWL4AI INTEGRATIONS ==============
-# Repo: https://github.com/unclecode/crawl4ai/
-# Docs: https://github.com/unclecode/crawl4ai/tree/main/docs/examples
-# pip install crawl4ai
+# Repo: https://github.com/unclecode/crawl4ai
+# Install: pip install crawl4ai
+# Optional: pip install -e ".[torch|transformer|cosine|sync|all]"
 
 try:
     from crawl4ai import AsyncCrawler, CrawlerResult
     CRAWL4AI_AVAILABLE = True
 except ImportError:
     CRAWL4AI_AVAILABLE = False
+
+# Crawl4AI installation options
+CRAWL4AI_INSTALLS = {
+    "basic": "pip install crawl4ai",
+    "torch": "pip install -e \".[torch]\"",
+    "transformer": "pip install -e \".[transformer]\"",
+    "cosine": "pip install -e \".[cosine]\"",
+    "sync": "pip install -e \".[sync]\" (Selenium)",
+    "all": "pip install -e \".[all]\"",
+    "docker": "docker run -d -p 8555:8000 unclecode/crawl4ai:latest",
+    "docker_gpu": "docker run -d -p 8555:8000 unclecode/crawl4ai:latest-gpu",
+}
 
 # Crawl4AI features (from docs/examples)
 CRAWL4AI_FEATURES = {
