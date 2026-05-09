@@ -43,3 +43,12 @@ curl -X POST "https://api.github.com/repos/AGenNext/AGenNext-WebCrawl/actions/wo
 - Check GitHub action logs when builds fail - don't assume
 - For Docker Hub login in actions: username goes in vars, token in secrets
 - Use explicit dates in GitHub compare URLs, not relative
+
+### Making Agent Reliable
+1. **Always Test**: Don't say "working" without verifying - visit URL or use Playwright
+2. **Check Logs First**: When something fails, check error logs before fixing
+3. **One Change at a Time**: Make small changes, test, then move on
+4. **Document What Works**: Add working patterns to this file
+5. **Ask Before Saving**: Confirm with user before writing to documentation files
+6. **Trust but Verify**: Even if code pushed, verify deployment actually worked
+7. **No Assumptions**: If unsure, ask user instead of guessing
