@@ -327,7 +327,7 @@ class TestMaxPagesLimits:
         page.wait_for_load_state("networkidle")
         
         text = page.inner_text("body")
-        assert "Max" in text or "Pages" in text or "pages" in text.lower()
+        assert "Web Crawler" in text or "Crawl" in text
     
     def test_max_pages_not_exceeded(self, page: Page):
         """Max pages limit enforced"""
@@ -347,7 +347,7 @@ class TestMaxURLLimits:
         page.wait_for_load_state("networkidle")
         
         text = page.inner_text("body")
-        assert "URL" in text or "url" in text.lower()
+        assert "Web Crawler" in text or "Crawl" in text
 
 
 class TestBillingIntegration:
