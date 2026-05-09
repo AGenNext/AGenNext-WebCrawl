@@ -5,16 +5,18 @@ from crawler_agent.state import CrawlState, get_initial_state
 from crawler_agent.graph import create_crawl_graph, run_crawl
 from crawler_agent.config import CrawlMode, CrawlProvider
 from crawler_agent.billing import UnifiedBilling, get_billing
+from crawler_agent.self_improve import SelfImprovingAgent, get_self_improving_agent
 
 
 class CrawlAgent:
-    """Web Crawling Agent using LangGraph SDK"""
+    """Web Crawling Agent using LangGraph SDK with self-improvement"""
     
     def __init__(
         self,
         provider: CrawlProvider = "crawl4ai",
     ):
         self.provider = provider
+        self.optimizer = get_self_improving_agent()
     
     async def crawl(
         self,
@@ -24,7 +26,10 @@ class CrawlAgent:
         max_pages: Optional[int] = None,
         max_urls: Optional[int] = None,
     ) -> Dict[str, Any]:
-        """Crawl a website with specified mode"""
+        """Crawl a website with specified mode and self-improvement"""
+        
+        # Get best strategy based on learning
+        strategy = self.optimizer.get_best_strategy(url, self.optimizer.history)
         
         result = await run_crawl(
             url=url,
@@ -33,6 +38,12 @@ class CrawlAgent:
             max_pages=max_pages or 50,
             max_urls=max_urls or 100,
             provider=self.provider,
+        )
+        
+        # Analyze result for self-improvement
+        analysis = self.optimizer.analyze_crawl(
+            {"status": "completed" if result else "error", "crawled_pages": []},
+            strategy
         )
         
         return self._format_result(result, mode)
