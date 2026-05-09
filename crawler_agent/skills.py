@@ -168,27 +168,22 @@ class FormFillSkill:
 
 
 class OCRSkill:
-    """OCR and document parsing"""
+    """OCR - LiteParse (@lupd/liteparse) / EasyOCR / pdfplumber"""
     
     name = "ocr"
-    description = "Extract text from images/documents - uses LiteParse/EasyOCR"
+    description = "Extract text via LiteParse CLI, EasyOCR, or pdfplumber"
     
     @staticmethod
-    def parse(url: str = None, file: str = None) -> Dict[str, Any]:
-        """Parse document - tries multiple parsers"""
-        return OCRTools.parse_document(url=url, file_path=file)
+    def liteparse(file_path: str) -> Dict[str, Any]:
+        """Parse with LiteParse CLI: npx @lupd/liteparse file.pdf"""
+        return OCRTools.parse_with_liteparse(file_path)
     
     @staticmethod
-    def easyocr(image_path: str = None, image_data: bytes = None) -> Dict[str, Any]:
-        """Extract text using EasyOCR"""
-        return OCRTools.parse_with_easyocr(file_path=image_path, image_data=image_data)
-    
-    @staticmethod
-    def tesseract(image_path: str) -> Dict[str, Any]:
-        """Extract text using pytesseract"""
-        return OCRTools.extract_with_pytesseract(image_path)
+    def easyocr(file_path: str = None, image_data: bytes = None) -> Dict[str, Any]:
+        """Parse with EasyOCR: pip install easyocr"""
+        return OCRTools.parse_with_easyocr(file_path=file_path, image_data=image_data)
     
     @staticmethod
     def parse_pdf(file_path: str) -> Dict[str, Any]:
-        """Parse PDF with pdfplumber"""
+        """Parse PDF: pip install pdfplumber"""
         return OCRTools.parse_pdf(file_path)

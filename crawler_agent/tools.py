@@ -675,116 +675,62 @@ AGENT_TOOLS = {
 
 
 class OCRTools:
-    """OCR and Document Parsing Tools - Uses LiteParse from LlamaIndex"""
+    """OCR and Document Parsing Tools
+    
+    LiteParse: https://github.com/run-llama/liteparse
+    TypeScript npm: npx @lupd/liteparse file.pdf
+    
+    Python alternatives:
+    - EasyOCR: pip install easyocr
+    - pdfplumber: pip install pdfplumber  
+    """
     
     @staticmethod
-    def parse_document(url: str = None, 
-                     file_path: str = None) -> Dict[str, Any]:
-        """
-        Parse document using LiteParse (open source from LlamaIndex)
+    def parse_with_liteparse(file_path: str) -> Dict[str, Any]:
+        """Parse document using LiteParse CLI (npx @lupd/liteparse)"""
+        import subprocess
+        import json
+        import os
         
-        Note: For best results, also consider:
-        - EasyOCR for local OCR: pip install easyocr  
-        - pdfplumber for PDFs: pip install pdfplumber
+        result = {"success": False, "text": "", "pages": []}
         
-        Args:
-            url: URL to parse
-            file_path: Local file path
-            
-        Returns:
-            Dict with parsed text and metadata
-        """
-        result = {"success": False, "text": None, "pages": [], "metadata": {}}
-        result["note"] = "For LiteParse, run: pip install lite-parse - OR use EasyOCR/pytesseract for local OCR"
-        
-        # Try LiteParse if available
-        try:
-            from lite_parse import LiteParse
-            lp = LiteParse()
-            if url:
-                docs = lp.parse(url)
-            elif file_path:
-                docs = lp.parse(file_path)
-            else:
-                result["error"] = "No URL or file path provided"
-                return result
-            
-            text_parts = [doc.text for doc in docs]
-            result["text"] = "\n\n".join(text_parts)
-            result["pages"] = [{"text": d.text} for d in docs]
-            result["success"] = True
-            result["parser"] = "lite-parse"
+        if not file_path or not os.path.exists(file_path):
+            result["error"] = f"File not found: {file_path}"
+            result["hint"] = "npm install -g @lupd/liteparse"
             return result
-        except ImportError:
-            pass
         
-        # Try lite-parse (alternative import)
         try:
-            from liteparse import LiteParse
-            lp = LiteParse()
-            if url:
-                docs = lp.parse(url)
-            elif file_path:
-                docs = lp.parse(file_path)
-            else:
-                result["error"] = "No URL or file path provided"
-                return result
+            output_file = file_path + ".json"
+            # Use exact package from user: run-llama/liteparse
+            cmd = ["npx", "@lupd/liteparse", file_path, "--output", output_file]
             
-            text_parts = [doc.text for doc in docs]
-            result["text"] = "\n\n".join(text_parts)
-            result["pages"] = [{"text": d.text} for d in docs]
-            result["success"] = True
-            result["parser"] = "liteparse"
-            return result
-        except ImportError:
-            pass
-        
-        # Try llamaparse (from LlamaIndex)
-        try:
-            from llama_parse import LlamaParse
-            lp = LlamaParse()
-            if url:
-                docs = lp.load_data(url)
-            elif file_path:
-                docs = lp.load_data(file_path)
-            else:
-                result["error"] = "No URL or file path provided"
-                return result
+            proc = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
             
-            text_parts = [doc.text for doc in docs]
-            result["text"] = "\n\n".join(text_parts)
-            result["pages"] = [{"text": d.text} for d in docs]
-            result["success"] = True
-            result["parser"] = "llama-parse"
-            return result
-        except ImportError:
-            pass
+            if proc.returncode == 0 and os.path.exists(output_file):
+                with open(output_file, 'r') as f:
+                    data = json.load(f)
+                    result["text"] = str(data)
+                    result["success"] = True
+                    result["parser"] = "@lupd/liteparse"
+                os.unlink(output_file)
+            else:
+                result["error"] = proc.stderr or "LiteParse failed"
+                result["hint"] = "npm install -g @lupd/liteparse"
+        except FileNotFoundError:
+            result["error"] = "npx not found - install Node.js"
+        except Exception as e:
+            result["error"] = str(e)
         
-        result["error"] = "No parser available. Install one of: lite-parse, llama-parse, easyocr, pdfplumber"
         return result
     
     @staticmethod
     def parse_with_easyocr(file_path: str = None,
                         image_data: bytes = None) -> Dict[str, Any]:
-        """
-        Parse image using EasyOCR
-        
-        Args:
-            file_path: Path to image file
-            image_data: Image bytes
-            
-        Returns:
-            Dict with detected text and confidence
-        """
-        result = {
-            "success": False,
-            "text": [],
-            "annotations": [],
-        }
+        """Parse image using EasyOCR (pip install easyocr)"""
+        result = {"success": False, "text": [], "annotations": []}
         
         try:
             import easyocr
-            
             reader = easyocr.Reader(['en'], gpu=False)
             
             if file_path:
@@ -799,24 +745,16 @@ class OCRTools:
                     detections = reader.readtext(temp_path)
                     os.unlink(temp_path)
             else:
-                result["error"] = "No file path or image data provided"
+                result["error"] = "No file path provided"
                 return result
             
-            text_lines = []
-            for detection in detections:
-                bbox, text, confidence = detection
-                text_lines.append(text)
-                result["annotations"].append({
-                    "text": text,
-                    "confidence": confidence,
-                    "bbox": bbox,
-                })
-            
+            text_lines = [d[1] for d in detections]
             result["text"] = text_lines
+            result["annotations"] = [{"text": d[1], "confidence": d[2], "bbox": d[0]} for d in detections]
             result["success"] = True
             
         except ImportError:
-            result["error"] = "easyocr not installed. Install: pip install easyocr"
+            result["error"] = "easyocr not installed. pip install easyocr"
         except Exception as e:
             result["error"] = str(e)
         
@@ -824,15 +762,7 @@ class OCRTools:
     
     @staticmethod
     def extract_with_pytesseract(image_source: str) -> Dict[str, Any]:
-        """
-        Extract text using pytesseract
-        
-        Args:
-            image_source: Path, URL, or base64
-            
-        Returns:
-            Dict with extracted text
-        """
+        """Extract text using pytesseract"""
         result = {"success": False, "text": ""}
         
         try:
@@ -845,8 +775,7 @@ class OCRTools:
                 response = requests.get(image_source)
                 image = Image.open(BytesIO(response.content))
             elif image_source.startswith('data:'):
-                import base64
-                import io
+                import base64, io
                 data = image_source.split(',')[1]
                 image = Image.open(io.BytesIO(base64.b64decode(data)))
             else:
@@ -857,7 +786,7 @@ class OCRTools:
             result["success"] = True
             
         except ImportError:
-            result["error"] = "pytesseract not installed. Install: pip install pytesseract"
+            result["error"] = "pytesseract not installed. pip install pytesseract"
         except Exception as e:
             result["error"] = str(e)
         
@@ -865,15 +794,7 @@ class OCRTools:
     
     @staticmethod
     def parse_pdf(file_path: str) -> Dict[str, Any]:
-        """
-        Parse PDF using pdfplumber
-        
-        Args:
-            file_path: Path to PDF file
-            
-        Returns:
-            Dict with text per page
-        """
+        """Parse PDF using pdfplumber"""
         result = {"success": False, "pages": [], "page_count": 0}
         
         try:
@@ -888,7 +809,7 @@ class OCRTools:
             result["success"] = True
             
         except ImportError:
-            result["error"] = "pdfplumber not installed. Install: pip install pdfplumber"
+            result["error"] = "pdfplumber not installed. pip install pdfplumber"
         except Exception as e:
             result["error"] = str(e)
         
