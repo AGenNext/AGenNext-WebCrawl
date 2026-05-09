@@ -207,39 +207,309 @@ def firecrawl_pdf(url: str) -> Dict[str, Any]:
 # Install: pip install crawl4ai
 # Docker: docker run -d -p 8555:8000 unclecode/crawl4ai:latest
 
-try:
-    from crawl4ai import AsyncCrawler, CrawlerResult, BrowserConfig, CrawlerRunConfig
-    CRAWL4AI_AVAILABLE = True
-except ImportError:
-    CRAWL4AI_AVAILABLE = False
-
-# Crawl4AI modules
+# Crawl4AI MODULES (from repo)
 CRAWL4AI_MODULES = {
-    "crawl4ai.crawler": "Main crawler module",
-    "crawl4ai.browser": "Browser management",
-    "crawl4ai.deep_crawl": "Deep crawling strategies",
-    "crawl4ai.extraction_strategy": "Data extraction",
+    "crawl4ai.crawler": "Main crawler - AsyncCrawler",
+    "crawl4ai.browser": "Browser management - BrowserManager",
+    "crawl4ai.deep_crawling": "Deep crawling - BFS, DFS, BestFirst",
+    "crawl4ai.extraction_strategy": "Data extraction - JsonCss, JsonXPath, Regex, Cosine",
     "crawl4ai.markdown_generation": "Markdown generation",
-    "crawl4ai.cache": "Caching",
+    "crawl4ai.content_filter": "Content filtering - BM25, Pruning",
+    "crawl4ai.cache": "Caching - url_seeder, memory, disk",
     "crawl4ai.docker": "Docker API client",
+    "crawl4ai.cloud": "Cloud CLI - profile management",
+    "crawl4ai.components": "Monitor, keyboard input",
+    "crawl4ai.processors.pdf": "PDF processing",
+    "crawl4ai.script": "C4A-Script support",
 }
 
-# Crawl4AI key classes
+# Crawl4AI KEY CLASSES
 CRAWL4AI_CLASSES = {
     "AsyncCrawler": "Main async crawler",
-    "BrowserConfig": "Browser configuration",
-    "CrawlerRunConfig": "Run configuration",
-    "BrowserManager": "Browser lifecycle",
-    "HTTPCrawlerStrategy": "HTTP-only crawl",
-    "PlaywrightCrawler": "JS rendering",
+    "BrowserConfig": "Browser configuration - headless, stealth, proxy",
+    "CrawlerRunConfig": "Run config - timeout, extraction, markdown",
+    "BrowserManager": "Browser lifecycle - start, close, get_page",
+    "HTTPCrawlerStrategy": "HTTP-only crawl (no JS)",
+    "PlaywrightCrawler": "JavaScript rendering",
     "BFSDeepCrawl": "Breadth-first deep crawl",
-    "DFSTreeCrawl": "DFS deep crawl",
+    "DFSTreeCrawl": "DFS tree deep crawl",
     "BestFirstDeepCrawl": "Best-first crawl",
+    "JsonCssExtractionStrategy": "CSS selector extraction",
+    "JsonXPathExtractionStrategy": "XPath extraction",
+    "RegexExtractionStrategy": "Regex pattern extraction",
+    "CosineEmbeddingStrategy": "Cosine similarity extraction",
+    "LLMExtractionStrategy": "LLM-based extraction",
+    "BM25ContentFilter": "BM25 content filtering",
+    "BrowserProfiler": "Browser identity profiling",
+    "AntiBotDetector": "Anti-bot detection with proxy escalation",
 }
 
-# Crawl4AI features (from docs/examples)
+# CRAWL4AI FEATURES (capabilities)
 CRAWL4AI_FEATURES = {
+    # Core Crawling
     "crawl": "Crawl single URL",
+    "crawl_many": "Crawl multiple URLs",
+    "crawl_js": "JavaScript rendering",
+    "crawl_raw": "Raw HTML processing",
+    "crawl_screenshot": "Take screenshot",
+    "crawl_pdf": "Generate PDF",
+    "crawl_mhtml": "Generate MHTML",
+    
+    # Deep Crawling
+    "deep_bfs": "BFS deep crawl",
+    "deep_dfs": "DFS deep crawl",
+    "deep_best_first": "Best-first crawl",
+    "deep_cancel": "Cancel deep crawl",
+    "deep_resume": "Resume from checkpoint",
+    "deep_state": "Get crawl state",
+    
+    # Content Processing
+    "markdown": "Generate markdown",
+    "markdown_citations": "Markdown with citations",
+    "filter_bm25": "BM25 content filter",
+    "filter_pruning": "Pruning filter",
+    "extract_links": "Extract all links",
+    "extract_images": "Extract images",
+    "extract_tables": "Extract tables",
+    "extract_metadata": "Extract metadata",
+    
+    # Extraction Strategies
+    "extract_css": "CSS selector extraction",
+    "extract_xpath": "XPath extraction",
+    "extract_regex": "Regex extraction",
+    "extract_cosine": "Cosine similarity extraction",
+    "extract_llm": "LLM extraction with schema",
+    "extract_no_extract": "No extraction - raw content",
+    
+    # Advanced
+    "network_capture": "Capture network requests",
+    "console_capture": "Capture console messages",
+    "shadow_dom": "Shadow DOM flattening",
+    "iframe_process": "Process iframes",
+    "proxy": "Proxy support",
+    "stealth": "Stealth browsing",
+    "user_agent": "Custom user agent",
+    "cache": "Caching - memory/disk",
+    "hooks": "Pre/post crawl hooks",
+    "sessions": "Browser sessions",
+    "wait_for": "Wait for selector",
+    "wait_scroll": "Wait after scroll",
+    "file_download": "Detect and save file downloads",
+}
+
+# CRAWL4AI PROMPTS
+CRAWL4AI_PROMPTS = {
+    "prompt_net_requests": "Network request prompting",
+    "schema_extraction": "LLM schema extraction prompt",
+    "content_filtering": "Content filtering prompt",
+}
+
+
+# ============== CRAWL4AI TOOLS (actual working) ==============
+
+def crawl4ai_crawl(url: str, **kwargs) -> Dict[str, Any]:
+    """Crawl URL with Crawl4AI"""
+    try:
+        from crawl4ai import AsyncCrawler
+        result = AsyncCrawler().crawl(url, **kwargs)
+        return {"success": True, "data": result}
+    except ImportError:
+        return {"error": "pip install crawl4ai"}
+    except Exception as e:
+        return {"error": str(e)}
+
+
+def crawl4ai_crawl_many(urls: List[str], **kwargs) -> Dict[str, Any]:
+    """Crawl multiple URLs"""
+    try:
+        from crawl4ai import AsyncCrawler
+        result = AsyncCrawler().crawl_many(urls, **kwargs)
+        return {"success": True, "data": result}
+    except ImportError:
+        return {"error": "pip install crawl4ai"}
+    except Exception as e:
+        return {"error": str(e)}
+
+
+def crawl4ai_markdown(url: str) -> Dict[str, Any]:
+    """Extract as markdown"""
+    try:
+        from crawl4ai import AsyncCrawler
+        result = AsyncCrawler().crawl(url)
+        return {"success": True, "markdown": result.markdown}
+    except ImportError:
+        return {"error": "pip install crawl4ai"}
+    except Exception as e:
+        return {"error": str(e)}
+
+
+def crawl4ai_with_css(url: str, selector: str) -> Dict[str, Any]:
+    """Extract with CSS selector"""
+    try:
+        from crawl4ai import AsyncCrawler, CrawlerRunConfig
+        from crawl4ai.extraction_strategy import JsonCssExtractionStrategy
+        config = CrawlerRunConfig(
+            extraction_strategy=JsonCssExtractionStrategy(selector=selector)
+        )
+        result = AsyncCrawler().crawl(url, config)
+        return {"success": True, "data": result}
+    except ImportError:
+        return {"error": "pip install crawl4ai"}
+    except Exception as e:
+        return {"error": str(e)}
+
+
+def crawl4ai_with_xpath(url: str, xpath: str) -> Dict[str, Any]:
+    """Extract with XPath"""
+    try:
+        from crawl4ai import AsyncCrawler, CrawlerRunConfig
+        from crawl4ai.extraction_strategy import JsonXPathExtractionStrategy
+        config = CrawlerRunConfig(
+            extraction_strategy=JsonXPathExtractionStrategy(xpath=xpath)
+        )
+        result = AsyncCrawler().crawl(url, config)
+        return {"success": True, "data": result}
+    except ImportError:
+        return {"error": "pip install crawl4ai"}
+    except Exception as e:
+        return {"error": str(e)}
+
+
+def crawl4ai_with_regex(url: str, pattern: str) -> Dict[str, Any]:
+    """Extract with Regex"""
+    try:
+        from crawl4ai import AsyncCrawler, CrawlerRunConfig
+        from crawl4ai.extraction_strategy import RegexExtractionStrategy
+        config = CrawlerRunConfig(
+            extraction_strategy=RegexExtractionStrategy(pattern=pattern)
+        )
+        result = AsyncCrawler().crawl(url, config)
+        return {"success": True, "data": result}
+    except ImportError:
+        return {"error": "pip install crawl4ai"}
+    except Exception as e:
+        return {"error": str(e)}
+
+
+def crawl4ai_with_llm(url: str, schema: Dict) -> Dict[str, Any]:
+    """Extract with LLM using schema"""
+    try:
+        from crawl4ai import AsyncCrawler, CrawlerRunConfig
+        from crawl4ai.extraction_strategy import LLMExtractionStrategy
+        config = CrawlerRunConfig(
+            extraction_strategy=LLMExtractionStrategy(schema=schema)
+        )
+        result = AsyncCrawler().crawl(url, config)
+        return {"success": True, "data": result}
+    except ImportError:
+        return {"error": "pip install crawl4ai"}
+    except Exception as e:
+        return {"error": str(e)}
+
+
+def crawl4ai_screenshot(url: str) -> Dict[str, Any]:
+    """Take screenshot"""
+    try:
+        from crawl4ai import AsyncCrawler
+        result = AsyncCrawler().crawl(url)
+        return {"success": True, "screenshot": result.screenshot}
+    except ImportError:
+        return {"error": "pip install crawl4ai"}
+    except Exception as e:
+        return {"error": str(e)}
+
+
+def crawl4ai_pdf(url: str) -> Dict[str, Any]:
+    """Generate PDF"""
+    try:
+        from crawl4ai import AsyncCrawler
+        result = AsyncCrawler().crawl(url, generate_pdf=True)
+        return {"success": True, "pdf": result.pdf}
+    except ImportError:
+        return {"error": "pip install crawl4ai"}
+    except Exception as e:
+        return {"error": str(e)}
+
+
+def crawl4ai_deep_bfs(url: str, max_depth: int = 2, max_pages: int = 10) -> Dict[str, Any]:
+    """Deep crawl with BFS"""
+    try:
+        from crawl4ai import AsyncCrawler, CrawlerRunConfig
+        from crawl4ai.deep_crawling import BFSDeepCrawl
+        config = CrawlerRunConfig(
+            deep_crawl_strategy=BFSDeepCrawl(
+                max_depth=max_depth,
+                max_pages=max_pages
+            )
+        )
+        result = AsyncCrawler().crawl(url, config)
+        return {"success": True, "data": result}
+    except ImportError:
+        return {"error": "pip install crawl4ai"}
+    except Exception as e:
+        return {"error": str(e)}
+
+
+def crawl4ai_deep_dfs(url: str, max_depth: int = 2, max_pages: int = 10) -> Dict[str, Any]:
+    """Deep crawl with DFS"""
+    try:
+        from crawl4ai import AsyncCrawler, CrawlerRunConfig
+        from crawl4ai.deep_crawling import DFSTreeCrawl
+        config = CrawlerRunConfig(
+            deep_crawl_strategy=DFSTreeCrawl(
+                max_depth=max_depth,
+                max_pages=max_pages
+            )
+        )
+        result = AsyncCrawler().crawl(url, config)
+        return {"success": True, "data": result}
+    except ImportError:
+        return {"error": "pip install crawl4ai"}
+    except Exception as e:
+        return {"error": str(e)}
+
+
+def crawl4ai_stealth(url: str) -> Dict[str, Any]:
+    """Stealth browsing"""
+    try:
+        from crawl4ai import AsyncCrawler, BrowserConfig
+        browser_config = BrowserConfig(stealth=True)
+        result = AsyncCrawler().crawl(url, browser_config)
+        return {"success": True, "data": result}
+    except ImportError:
+        return {"error": "pip install crawl4ai"}
+    except Exception as e:
+        return {"error": str(e)}
+
+
+def crawl4ai_js_render(url: str, wait_for: str = None) -> Dict[str, Any]:
+    """JavaScript rendering"""
+    try:
+        from crawl4ai import AsyncCrawler, BrowserConfig
+        browser_config = BrowserConfig(headless=True)
+        run_config = {"js": True}
+        if wait_for:
+            run_config["wait_for"] = wait_for
+        result = AsyncCrawler().crawl(url, **run_config)
+        return {"success": True, "data": result}
+    except ImportError:
+        return {"error": "pip install crawl4ai"}
+    except Exception as e:
+        return {"error": str(e)}
+
+
+def crawl4ai_with_proxy(url: str, proxy_url: str) -> Dict[str, Any]:
+    """Crawl with proxy"""
+    try:
+        from crawl4ai import AsyncCrawler, BrowserConfig, ProxyConfig
+        proxy = ProxyConfig(url=proxy_url)
+        browser_config = BrowserConfig(proxy_config=proxy)
+        result = AsyncCrawler().crawl(url, browser_config)
+        return {"success": True, "data": result}
+    except ImportError:
+        return {"error": "pip install crawl4ai"}
+    except Exception as e:
+        return {"error": str(e)}
     "crawl_urls": "Crawl URLs from list",
     "crawl_sitemap": "Crawl sitemap",
     "crawl_all": "Crawl all links",
@@ -363,102 +633,6 @@ def crawl4ai_custom(url: str,
         return {"success": True, "data": result}
     except Exception as e:
         return {"error": str(e)}
-
-
-# ============== CRAWL4AI WEBSITE TO API ==============
-# Website-to-API examples from docs
-
-def crawl4ai_to_json(url: str, fields: List[str]) -> Dict[str, Any]:
-    """Extract specific fields to JSON (website-to-api)"""
-    if not CRAWL4AI_AVAILABLE:
-        return {"error": "pip install crawl4ai"}
-    try:
-        result = AsyncCrawler().crawl(url)
-        # Extract fields into dict
-        extracted = {}
-        for field in fields:
-            extracted[field] = None  # Would use actual extraction
-        return {"success": True, "data": extracted}
-    except Exception as e:
-        return {"error": str(e)}
-
-
-def crawl4ai_to_csv(url: str, selectors: Dict[str, str]) -> Dict[str, Any]:
-    """Extract selectors to CSV data"""
-    if not CRAWL4AI_AVAILABLE:
-        return {"error": "pip install crawl4ai"}
-    try:
-        result = AsyncCrawler().crawl(url)
-        return {"success": True, "data": selectors}
-    except Exception as e:
-        return {"error": str(e)}
-
-
-def crawl4ai_to_xml(url: str) -> Dict[str, Any]:
-    """Extract to XML format"""
-    if not CRAWL4AI_AVAILABLE:
-        return {"error": "pip install crawl4ai"}
-    try:
-        result = AsyncCrawler().crawl(url, output_format="xml")
-        return {"success": True, "xml": getattr(result, 'xml', None)}
-    except Exception as e:
-        return {"error": str(e)}
-
-
-def crawl4ai_to_sitemap(url: str) -> Dict[str, Any]:
-    """Extract all links as sitemap"""
-    if not CRAWL4AI_AVAILABLE:
-        return {"error": "pip install crawl4ai"}
-    try:
-        result = AsyncCrawler().crawl(url)
-        links = getattr(result, 'links', [])
-        return {"success": True, "links": links}
-    except Exception as e:
-        return {"error": str(e)}
-
-
-def crawl4ai_to_forms(url: str) -> Dict[str, Any]:
-    """Extract form data from URL"""
-    if not CRAWL4AI_AVAILABLE:
-        return {"error": "pip install crawl4ai"}
-    try:
-        result = AsyncCrawler().crawl(url)
-        return {"success": True, "forms": getattr(result, 'forms', [])}
-    except Exception as e:
-        return {"error": str(e)}
-
-
-def crawl4ai_to_images(url: str) -> Dict[str, Any]:
-    """Extract all images"""
-    if not CRAWL4AI_AVAILABLE:
-        return {"error": "pip install crawl4ai"}
-    try:
-        result = AsyncCrawler().crawl(url)
-        return {"success": True, "images": getattr(result, 'images', [])}
-    except Exception as e:
-        return {"error": str(e)}
-
-
-# ============== CRAWLER TOOLS (original) ==============
-
-async def crawl_firecrawl(url: str, options: Dict = None) -> Dict[str, Any]:
-    """Crawl using Firecrawl (open source)"""
-    crawler = FirecrawlCrawler()
-    try:
-        result = await crawler.crawl(url, options or {})
-        return {"success": True, "data": result}
-    except Exception as e:
-        return {"success": False, "error": str(e)}
-
-
-async def crawl_crawl4ai(url: str, options: Dict = None) -> Dict[str, Any]:
-    """Crawl using Crawl4AI"""
-    crawler = Crawl4AICrawler()
-    try:
-        result = await crawler.crawl(url, options or {})
-        return {"success": True, "data": result}
-    except Exception as e:
-        return {"success": False, "error": str(e)}
 
 
 # ============== CONTENT TOOLS ==============
