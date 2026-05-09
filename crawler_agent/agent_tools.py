@@ -2,7 +2,8 @@
 LlamaIndex: https://github.com/run-llama/llama_index/
 LlamaHub: https://llamahub.ai/
 Firecrawl: https://github.com/mendableai/firecrawl/
-pip install llama-index firecrawl
+Crawl4AI: https://github.com/unclecode/crawl4ai/
+pip install llama-index firecrawl crawl4ai
 """
 from typing import Dict, Any, Callable, List
 import asyncio
@@ -201,7 +202,97 @@ def firecrawl_pdf(url: str) -> Dict[str, Any]:
         return {"error": str(e)}
 
 
-# ============== CRAWLER TOOLS ==============
+# ============== CRAWL4AI INTEGRATIONS ==============
+# Repo: https://github.com/unclecode/crawl4ai/
+# pip install crawl4ai
+
+try:
+    from crawl4ai import AsyncCrawler, CrawlerResult
+    CRAWL4AI_AVAILABLE = True
+except ImportError:
+    CRAWL4AI_AVAILABLE = False
+
+# Crawl4AI features
+CRAWL4AI_FEATURES = {
+    "crawl": "Crawl single URL",
+    "crawl_multiple": "Crawl multiple URLs",
+    "crawl_with_schema": "Crawl with output schema",
+    "crawl_sitemap": "Crawl from sitemap",
+    "crawl_javascript": "Crawl with JS rendering",
+    "lazy_load": "Handle lazy loading",
+    "crawl_all": "Crawl all links found",
+}
+
+
+# ============== CRAWL4AI TOOLS ==============
+
+def crawl4ai_crawl(url: str, options: Dict = None) -> Dict[str, Any]:
+    """Crawl single URL with Crawl4AI"""
+    if not CRAWL4AI_AVAILABLE:
+        return {"error": "pip install crawl4ai"}
+    try:
+        result = AsyncCrawler().crawl(url, **(options or {}))
+        return {"success": True, "data": result}
+    except Exception as e:
+        return {"error": str(e)}
+
+
+def crawl4ai_crawl_urls(urls: List[str]) -> Dict[str, Any]:
+    """Crawl multiple URLs"""
+    if not CRAWL4AI_AVAILABLE:
+        return {"error": "pip install crawl4ai"}
+    try:
+        result = AsyncCrawler().crawl_multiple(urls)
+        return {"success": True, "data": result}
+    except Exception as e:
+        return {"error": str(e)}
+
+
+def crawl4ai_sitemap(url: str) -> Dict[str, Any]:
+    """Crawl from sitemap"""
+    if not CRAWL4AI_AVAILABLE:
+        return {"error": "pip install crawl4ai"}
+    try:
+        result = AsyncCrawler().crawl_sitemap(url)
+        return {"success": True, "data": result}
+    except Exception as e:
+        return {"error": str(e)}
+
+
+def crawl4ai_javascript(url: str) -> Dict[str, Any]:
+    """Crawl with JavaScript rendering"""
+    if not CRAWL4AI_AVAILABLE:
+        return {"error": "pip install crawl4ai"}
+    try:
+        result = AsyncCrawler().crawl(url, js=True)
+        return {"success": True, "data": result}
+    except Exception as e:
+        return {"error": str(e)}
+
+
+def crawl4ai_with_schema(url: str, schema: Dict) -> Dict[str, Any]:
+    """Crawl with output schema"""
+    if not CRAWL4AI_AVAILABLE:
+        return {"error": "pip install crawl4ai"}
+    try:
+        result = AsyncCrawler().crawl_with_schema(url, schema)
+        return {"success": True, "data": result}
+    except Exception as e:
+        return {"error": str(e)}
+
+
+def crawl4ai_all(url: str) -> Dict[str, Any]:
+    """Crawl all links from URL"""
+    if not CRAWL4AI_AVAILABLE:
+        return {"error": "pip install crawl4ai"}
+    try:
+        result = AsyncCrawler().crawl_all(url)
+        return {"success": True, "data": result}
+    except Exception as e:
+        return {"error": str(e)}
+
+
+# ============== CRAWLER TOOLS (original) ==============
 
 async def crawl_firecrawl(url: str, options: Dict = None) -> Dict[str, Any]:
     """Crawl using Firecrawl (open source)"""
@@ -407,7 +498,7 @@ def rag_clear():
 # ============== TOOL REGISTRY ==============
 
 AGENT_TOOLS = {
-    # Firecrawl (from examples)
+    # Firecrawl
     "firecrawl_crawl": firecrawl_crawl,
     "firecrawl_crawl_urls": firecrawl_crawl_urls,
     "firecrawl_sitemap": firecrawl_sitemap,
@@ -418,7 +509,15 @@ AGENT_TOOLS = {
     "firecrawl_github": firecrawl_github,
     "firecrawl_pdf": firecrawl_pdf,
     
-    # Crawlers
+    # Crawl4AI
+    "crawl4ai_crawl": crawl4ai_crawl,
+    "crawl4ai_crawl_urls": crawl4ai_crawl_urls,
+    "crawl4ai_sitemap": crawl4ai_sitemap,
+    "crawl4ai_javascript": crawl4ai_javascript,
+    "crawl4ai_with_schema": crawl4ai_with_schema,
+    "crawl4ai_all": crawl4ai_all,
+    
+    # Original
     "crawl_firecrawl": crawl_firecrawl,
     "crawl_crawl4ai": crawl_crawl4ai,
     
