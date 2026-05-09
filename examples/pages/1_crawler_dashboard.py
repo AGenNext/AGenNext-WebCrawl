@@ -69,6 +69,24 @@ FIRECRAWL_TOOLS = {
     },
 }
 
+LLM_PROVIDERS = {
+    "openai": {
+        "name": "OpenAI",
+        "models": ["gpt-4o", "gpt-4o-mini", "o1-preview"],
+        "env": "OPENAI_API_KEY",
+    },
+    "anthropic": {
+        "name": "Anthropic Claude",
+        "models": ["claude-sonnet-4-20250514", "claude-opus-4-20250514", "claude-3-opus"],
+        "env": "ANTHROPIC_API_KEY",
+    },
+    "ollama": {
+        "name": "Ollama (Local)",
+        "models": ["llama3", "mistral", "codellama"],
+        "env": None,
+    },
+}
+
 CRAWL_MODES = {
     "single": "Single Page - Crawl one URL",
     "depth": "Depth Crawl - Crawl with depth limit",
@@ -91,6 +109,15 @@ with st.sidebar:
             "crawl4ai": "🟡 Crawl4AI (Open Source)",
             "firecrawl": "🔥 Firecrawl Cloud",
         }.get(x, x)
+    )
+    
+    # LLM Provider
+    st.caption("**LLM for Extraction:**")
+    llm_provider = st.radio(
+        "Select LLM",
+        list(LLM_PROVIDERS.keys()),
+        format_func=lambda x: LLM_PROVIDERS[x]["name"],
+        horizontal=True,
     )
     
     # Show tools for selected provider
