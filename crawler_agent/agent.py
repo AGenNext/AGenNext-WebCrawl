@@ -37,7 +37,15 @@ When user is frustrated:
 - Ask clarifying questions
 - Do exactly what they ask without guessing
 - Keep responses short and direct
-- If unsure, ask for clarification"""
+- If unsure, ask for clarification
+
+Human in the loop:
+- Always ask before expensive operations (deep crawl >20 pages)
+- Show cost estimate before starting
+- Ask for confirmation on billing changes
+- Allow user to approve/reject crawl parameters
+- Pause and ask if results look wrong
+- Let user override any decision"""
 
 from crawler_agent.state import CrawlState, get_initial_state
 from crawler_agent.graph import create_crawl_graph, run_crawl
