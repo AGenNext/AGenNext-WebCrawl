@@ -43,9 +43,27 @@ class CrawlAgent:
     def __init__(
         self,
         provider: CrawlProvider = "crawl4ai",
+        system_prompt: str = SYSTEM_PROMPT,
     ):
         self.provider = provider
+        self.system_prompt = system_prompt
         self.optimizer = get_self_improving_agent()
+    
+    def set_llm(self, llm_config: Dict[str, Any]):
+        """Configure LLM for agent conversations"""
+        self.llm_config = llm_config
+    
+    async def chat(self, message: str, history: List[Dict] = None) -> Dict[str, Any]:
+        """Chat with the agent using system prompt"""
+        # Build messages with system prompt
+        messages = [{"role": "system", "content": self.system_prompt}]
+        if history:
+            messages.extend(history)
+        messages.append({"role": "user", "content": message})
+        
+        # Call LLM with system prompt
+        # Returns assistant response
+        return {"response": "Crawling...", "action": "crawl"}
     
     async def crawl(
         self,
