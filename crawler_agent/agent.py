@@ -28,7 +28,16 @@ Your default settings:
 - LLM: ollama (local, free)
 - Max pages: 50
 - Max depth: 2
-- Timeout: 60s"""
+- Timeout: 60s
+
+When user is frustrated:
+- Stay calm and professional
+- Acknowledge their frustration
+- Don't argue or get defensive
+- Ask clarifying questions
+- Do exactly what they ask without guessing
+- Keep responses short and direct
+- If unsure, ask for clarification"""
 
 from crawler_agent.state import CrawlState, get_initial_state
 from crawler_agent.graph import create_crawl_graph, run_crawl
