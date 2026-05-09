@@ -96,14 +96,31 @@ with st.sidebar:
     st.caption("**Enterprise Web Crawler**")
     st.divider()
     
+    # Page nav
+    st.subheader("📑 Pages")
+    st.page_link("examples/app.py", label="🏠 Dashboard", icon="🏠")
+    st.page_link("examples/pages/2_crawl_history.py", label="📜 History", icon="📜")
+    st.page_link("examples/pages/3_settings.py", label="⚙️ Settings", icon="⚙️")
+    
+    st.divider()
+    
     # Quick config
     st.subheader("⚙️ Configuration")
     provider = st.selectbox("Crawler", list(CRAWL_PROVIDERS.keys()), format_func=lambda x: CRAWL_PROVIDERS[x]["name"])
     llm = st.selectbox("LLM", list(LLM_PROVIDERS.keys()), format_func=lambda x: LLM_PROVIDERS[x]["name"])
+    mode = st.selectbox("Mode", list(CRAWL_MODES.keys()), format_func=lambda x: CRAWL_MODES[x])
     
     st.divider()
     
-    # Account from session
+    # Options
+    st.subheader("🔧 Options")
+    max_pages = st.slider("Max Pages", 1, 100, 10)
+    max_depth = st.number_input("Depth", 1, 10, 2)
+    timeout = st.number_input("Timeout (s)", 10, 300, 60)
+    
+    st.divider()
+    
+    # Account
     user = st.session_state.user or {"plan": "free", "credits": 100}
     st.subheader("👤 Account")
     st.metric("Plan", user.get("plan", "Free").title())
@@ -122,25 +139,7 @@ st.markdown("Enterprise-grade web scraping with LangGraph SDK")
 
 # Main form
 with st.form("crawl_form"):
-    col1, col2 = st.columns([3, 1])
-    
-    with col1:
-        url = st.text_input("🌐 Website URL", placeholder="https://example.com")
-    
-    with col2:
-        mode = st.selectbox("📊 Mode", list(CRAWL_MODES.keys()), format_func=lambda x: CRAWL_MODES[x])
-    
-    # Options
-    col3, col4, col5 = st.columns(3)
-    
-    with col3:
-        max_pages = st.slider("📄 Max Pages", 1, 100, 10)
-    
-    with col4:
-        max_depth = st.number_input("📏 Depth", 1, 10, 2)
-    
-    with col5:
-        timeout = st.number_input("⏱️ Timeout (s)", 10, 300, 60)
+    url = st.text_input("🌐 Website URL", placeholder="https://example.com")
     
     # Submit
     col_submit, col_cost = st.columns([1, 2])
@@ -151,7 +150,7 @@ with st.form("crawl_form"):
     # Cost estimate
     with col_cost:
         cost = max(1, max_pages) * {"single": 1, "depth": 2, "sitemap": 2, "knowledge": 3, "deep": 5}.get(mode, 1)
-        st.caption(f"💰 Cost: {cost} credits")
+        st.caption(f"💰 Est. Cost: {cost} credits")
 
 
 # Success

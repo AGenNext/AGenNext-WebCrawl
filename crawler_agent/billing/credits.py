@@ -126,9 +126,6 @@ def get_credit_manager() -> CreditManager:
     return _credit_manager
 
 
-# IMPORTANT: Don't change pricing without approval
-# Always ask before modifying billing logic
-
 # Credit costs per mode
 CREDIT_COSTS = {
     "single": 1,
