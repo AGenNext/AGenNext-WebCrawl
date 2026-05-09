@@ -2,10 +2,8 @@ FROM python:3.13-slim
 
 WORKDIR /app
 
-# Install streamlit directly
 RUN pip install --no-cache-dir streamlit
 
-# Copy app
 COPY . /app/
 
 EXPOSE 8501
