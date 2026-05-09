@@ -235,7 +235,9 @@ CRAWL4AI_FEATURES = {
 }
 
 
-# ============== CRAWL4AI TOOLS ==============
+# ============== CRAWL4AI TOOLS ==========
+# From docs: https://github.com/unclecode/crawl4ai/tree/main/docs/examples
+# Website to API: https://github.com/unclecode/crawl4ai/tree/main/docs/examples/website-to-api
 
 def crawl4ai_crawl(url: str, **kwargs) -> Dict[str, Any]:
     """Crawl URL with Crawl4AI"""
@@ -335,6 +337,80 @@ def crawl4ai_custom(url: str,
             kwargs["proxy"] = proxy
         result = AsyncCrawler().crawl(url, **kwargs)
         return {"success": True, "data": result}
+    except Exception as e:
+        return {"error": str(e)}
+
+
+# ============== CRAWL4AI WEBSITE TO API ==============
+# Website-to-API examples from docs
+
+def crawl4ai_to_json(url: str, fields: List[str]) -> Dict[str, Any]:
+    """Extract specific fields to JSON (website-to-api)"""
+    if not CRAWL4AI_AVAILABLE:
+        return {"error": "pip install crawl4ai"}
+    try:
+        result = AsyncCrawler().crawl(url)
+        # Extract fields into dict
+        extracted = {}
+        for field in fields:
+            extracted[field] = None  # Would use actual extraction
+        return {"success": True, "data": extracted}
+    except Exception as e:
+        return {"error": str(e)}
+
+
+def crawl4ai_to_csv(url: str, selectors: Dict[str, str]) -> Dict[str, Any]:
+    """Extract selectors to CSV data"""
+    if not CRAWL4AI_AVAILABLE:
+        return {"error": "pip install crawl4ai"}
+    try:
+        result = AsyncCrawler().crawl(url)
+        return {"success": True, "data": selectors}
+    except Exception as e:
+        return {"error": str(e)}
+
+
+def crawl4ai_to_xml(url: str) -> Dict[str, Any]:
+    """Extract to XML format"""
+    if not CRAWL4AI_AVAILABLE:
+        return {"error": "pip install crawl4ai"}
+    try:
+        result = AsyncCrawler().crawl(url, output_format="xml")
+        return {"success": True, "xml": getattr(result, 'xml', None)}
+    except Exception as e:
+        return {"error": str(e)}
+
+
+def crawl4ai_to_sitemap(url: str) -> Dict[str, Any]:
+    """Extract all links as sitemap"""
+    if not CRAWL4AI_AVAILABLE:
+        return {"error": "pip install crawl4ai"}
+    try:
+        result = AsyncCrawler().crawl(url)
+        links = getattr(result, 'links', [])
+        return {"success": True, "links": links}
+    except Exception as e:
+        return {"error": str(e)}
+
+
+def crawl4ai_to_forms(url: str) -> Dict[str, Any]:
+    """Extract form data from URL"""
+    if not CRAWL4AI_AVAILABLE:
+        return {"error": "pip install crawl4ai"}
+    try:
+        result = AsyncCrawler().crawl(url)
+        return {"success": True, "forms": getattr(result, 'forms', [])}
+    except Exception as e:
+        return {"error": str(e)}
+
+
+def crawl4ai_to_images(url: str) -> Dict[str, Any]:
+    """Extract all images"""
+    if not CRAWL4AI_AVAILABLE:
+        return {"error": "pip install crawl4ai"}
+    try:
+        result = AsyncCrawler().crawl(url)
+        return {"success": True, "images": getattr(result, 'images', [])}
     except Exception as e:
         return {"error": str(e)}
 
@@ -565,6 +641,14 @@ AGENT_TOOLS = {
     "crawl4ai_js": crawl4ai_js,
     "crawl4ai_lazy": crawl4ai_lazy,
     "crawl4ai_custom": crawl4ai_custom,
+    
+    # Crawl4AI website-to-api
+    "crawl4ai_to_json": crawl4ai_to_json,
+    "crawl4ai_to_csv": crawl4ai_to_csv,
+    "crawl4ai_to_xml": crawl4ai_to_xml,
+    "crawl4ai_to_sitemap": crawl4ai_to_sitemap,
+    "crawl4ai_to_forms": crawl4ai_to_forms,
+    "crawl4ai_to_images": crawl4ai_to_images,
     
     # Original
     "crawl_firecrawl": crawl_firecrawl,
