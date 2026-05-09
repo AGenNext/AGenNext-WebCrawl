@@ -91,6 +91,116 @@ except ImportError:
 from crawler_agent.rag import RAGFlow, LocalRAGFlow
 
 
+# ============== FIRECRAWL TOOLS (from examples) ==============
+
+def firecrawl_crawl(url: str) -> Dict[str, Any]:
+    """Crawl single URL"""
+    if not FIRECRAWL_AVAILABLE:
+        return {"error": "pip install firecrawl"}
+    try:
+        app = FirecrawlApp()
+        result = app.crawl_url(url)
+        return {"success": True, "data": result}
+    except Exception as e:
+        return {"error": str(e)}
+
+
+def firecrawl_crawl_urls(urls: List[str]) -> Dict[str, Any]:
+    """Crawl multiple URLs"""
+    if not FIRECRAWL_AVAILABLE:
+        return {"error": "pip install firecrawl"}
+    try:
+        app = FirecrawlApp()
+        result = app.crawl_urls(urls)
+        return {"success": True, "data": result}
+    except Exception as e:
+        return {"error": str(e)}
+
+
+def firecrawl_sitemap(url: str) -> Dict[str, Any]:
+    """Parse sitemap"""
+    if not FIRECRAWL_AVAILABLE:
+        return {"error": "pip install firecrawl"}
+    try:
+        app = FirecrawlApp()
+        result = app.crawl_sitemap(url)
+        return {"success": True, "data": result}
+    except Exception as e:
+        return {"error": str(e)}
+
+
+def firecrawl_scrape(url: str) -> Dict[str, Any]:
+    """Scrape URL to markdown"""
+    if not FIRECRAWL_AVAILABLE:
+        return {"error": "pip install firecrawl"}
+    try:
+        app = FirecrawlApp()
+        result = app.scrape(url)
+        return {"success": True, "markdown": result.markdown}
+    except Exception as e:
+        return {"error": str(e)}
+
+
+def firecrawl_extract(url: str, schema: Dict) -> Dict[str, Any]:
+    """Extract with schema"""
+    if not FIRECRAWL_AVAILABLE:
+        return {"error": "pip install firecrawl"}
+    try:
+        app = FirecrawlApp()
+        result = app.extract(url, schema=schema)
+        return {"success": True, "data": result}
+    except Exception as e:
+        return {"error": str(e)}
+
+
+def firecrawl_search(query: str, limit: int = 10) -> Dict[str, Any]:
+    """Web search"""
+    if not FIRECRAWL_AVAILABLE:
+        return {"error": "pip install firecrawl"}
+    try:
+        app = FirecrawlApp()
+        result = app.search(query, limit=limit)
+        return {"success": True, "results": result}
+    except Exception as e:
+        return {"error": str(e)}
+
+
+def firecrawl_youtube(url: str) -> Dict[str, Any]:
+    """YouTube to markdown"""
+    if not FIRECRAWL_AVAILABLE:
+        return {"error": "pip install firecrawl"}
+    try:
+        app = FirecrawlApp()
+        result = app.youtube(url)
+        return {"success": True, "markdown": result.markdown}
+    except Exception as e:
+        return {"error": str(e)}
+
+
+def firecrawl_github(repo: str) -> Dict[str, Any]:
+    """GitHub to markdown"""
+    if not FIRECRAWL_AVAILABLE:
+        return {"error": "pip install firecrawl"}
+    try:
+        app = FirecrawlApp()
+        result = app.github(repo)
+        return {"success": True, "markdown": result.markdown}
+    except Exception as e:
+        return {"error": str(e)}
+
+
+def firecrawl_pdf(url: str) -> Dict[str, Any]:
+    """PDF to markdown"""
+    if not FIRECRAWL_AVAILABLE:
+        return {"error": "pip install firecrawl"}
+    try:
+        app = FirecrawlApp()
+        result = app.pdf(url)
+        return {"success": True, "markdown": result.markdown}
+    except Exception as e:
+        return {"error": str(e)}
+
+
 # ============== CRAWLER TOOLS ==============
 
 async def crawl_firecrawl(url: str, options: Dict = None) -> Dict[str, Any]:
@@ -297,6 +407,17 @@ def rag_clear():
 # ============== TOOL REGISTRY ==============
 
 AGENT_TOOLS = {
+    # Firecrawl (from examples)
+    "firecrawl_crawl": firecrawl_crawl,
+    "firecrawl_crawl_urls": firecrawl_crawl_urls,
+    "firecrawl_sitemap": firecrawl_sitemap,
+    "firecrawl_scrape": firecrawl_scrape,
+    "firecrawl_extract": firecrawl_extract,
+    "firecrawl_search": firecrawl_search,
+    "firecrawl_youtube": firecrawl_youtube,
+    "firecrawl_github": firecrawl_github,
+    "firecrawl_pdf": firecrawl_pdf,
+    
     # Crawlers
     "crawl_firecrawl": crawl_firecrawl,
     "crawl_crawl4ai": crawl_crawl4ai,
