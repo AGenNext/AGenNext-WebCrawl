@@ -22,8 +22,8 @@ jobs:
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
           
       - name: Build and push
         uses: docker/build-push-action@v5
@@ -31,13 +31,13 @@ jobs:
           context: .
           push: true
           tags: |
-            openautonomyx/webcrawl-agnxxt:latest
-            openautonomyx/webcrawl-agnxxt:${{ github.sha }}
+            agennext/webcrawl:latest
+            agennext/webcrawl:${{ github.sha }}
             
   deploy:
     needs: build-and-push
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy via curl
+      - name: Deploy to Coolify
         run: |
-          curl -X POST "${{ secrets.COOLIFY_WEBHOOK }}"
+          curl -s -X POST "https://vps.openautonomyx.com/api/v1/deploy?uuid=hx8o7igiqdhzumxnykgcycl0"

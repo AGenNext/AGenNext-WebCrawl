@@ -7,7 +7,18 @@ import streamlit as st
 import asyncio
 from datetime import datetime
 
-# Page config
+st.set_page_config(
+    page_title="$f",
+    page_icon="🕷️",
+    layout="wide",
+)
+
+# SEO
+st.markdown("""<head>
+    <meta name="description" content="AGenNext - AI-powered web crawling service">
+    <meta name="keywords" content="web crawler, web scraping, AI scraping">
+</head>""", unsafe_allow_html=True)
+
 st.set_page_config(
     page_title="Crawler Billing Dashboard",
     page_icon="💳",

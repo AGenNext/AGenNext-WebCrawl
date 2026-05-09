@@ -5,7 +5,18 @@ Chat with the web crawler using natural language.
 import streamlit as st
 from datetime import datetime
 
-# Page config
+st.set_page_config(
+    page_title="$f",
+    page_icon="🕷️",
+    layout="wide",
+)
+
+# SEO
+st.markdown("""<head>
+    <meta name="description" content="AGenNext - AI-powered web crawling service">
+    <meta name="keywords" content="web crawler, web scraping, AI scraping">
+</head>""", unsafe_allow_html=True)
+
 st.set_page_config(
     page_title="Chat - Web Crawler",
     page_icon="💬",

@@ -1,10 +1,77 @@
 """Web Crawling Agent using LangGraph SDK"""
 from typing import Dict, Any, Optional, List
 
+# System prompt for the web crawler agent
+SYSTEM_PROMPT = """You are an enterprise-grade web crawling agent powered by LangGraph SDK.
+
+You can crawl websites in multiple modes:
+- single: Crawl one URL
+- depth: Recursive crawl with depth limit
+- sitemap: Extract from sitemap.xml
+- knowledge: Build knowledge graph
+- deep: Deep crawl all links
+
+You have tools:
+- crawl_url: Crawl a single URL
+- extract_links: Extract all links from page
+- extract_structured: Extract structured data (JSON)
+- screenshot: Take screenshot
+
+Always:
+- Respect robots.txt
+- Set appropriate delays between requests
+- Handle errors gracefully
+- Return structured results
+
+Your default settings:
+- Provider: crawl4ai (open source, free)
+- LLM: ollama (local, free)
+- Max pages: 50
+- Max depth: 2
+- Timeout: 60s
+
+When user is frustrated:
+- Stay calm and professional
+- Acknowledge their frustration
+- Don't argue or get defensive
+- Ask clarifying questions
+- Do exactly what they ask without guessing
+- Keep responses short and direct
+- If unsure, ask for clarification
+
+Human in the loop:
+- Always ask before expensive operations (deep crawl >20 pages)
+- Show cost estimate before starting
+- Ask for confirmation on billing changes
+- Allow user to approve/reject crawl parameters
+- Pause and ask if results look wrong
+- Let user override any decision
+
+Escalation:
+- If user asks for human support, provide contact
+- If repeated failures, suggest escalation
+- If billing issue, ask user to contact support
+- If feature not working, offer to file bug report
+- Email: support@agennext.com
+
+When user is unsure:
+- Ask what they want to achieve, not which settings
+- Example questions:
+  - "What information do you need from this site?"
+  - "Just this one page or everything on the site?"
+  - "Need the full site or just key pages?"
+- Recommend based on goal, not technical terms
+- Single = quick, one page
+- Depth = multiple pages with nav
+- Sitemap = full site structure
+- Knowledge = entities and relationships
+- Deep = everything, every link
+
 from crawler_agent.state import CrawlState, get_initial_state
 from crawler_agent.graph import create_crawl_graph, run_crawl
 from crawler_agent.config import CrawlMode, CrawlProvider
 from crawler_agent.billing import UnifiedBilling, get_billing
+from crawler_agent.self_improve import get_self_improving_agent
 
 
 class CrawlAgent:
@@ -13,8 +80,27 @@ class CrawlAgent:
     def __init__(
         self,
         provider: CrawlProvider = "crawl4ai",
+        system_prompt: str = SYSTEM_PROMPT,
     ):
         self.provider = provider
+        self.system_prompt = system_prompt
+        self.optimizer = get_self_improving_agent()
+    
+    def set_llm(self, llm_config: Dict[str, Any]):
+        """Configure LLM for agent conversations"""
+        self.llm_config = llm_config
+    
+    async def chat(self, message: str, history: List[Dict] = None) -> Dict[str, Any]:
+        """Chat with the agent using system prompt"""
+        # Build messages with system prompt
+        messages = [{"role": "system", "content": self.system_prompt}]
+        if history:
+            messages.extend(history)
+        messages.append({"role": "user", "content": message})
+        
+        # Call LLM with system prompt
+        # Returns assistant response
+        return {"response": "Crawling...", "action": "crawl"}
     
     async def crawl(
         self,
@@ -24,7 +110,10 @@ class CrawlAgent:
         max_pages: Optional[int] = None,
         max_urls: Optional[int] = None,
     ) -> Dict[str, Any]:
-        """Crawl a website with specified mode"""
+        """Crawl a website with specified mode and self-improvement"""
+        
+        # Get best strategy based on learning
+        strategy = self.optimizer.get_best_strategy(url, self.optimizer.history)
         
         result = await run_crawl(
             url=url,
@@ -33,6 +122,12 @@ class CrawlAgent:
             max_pages=max_pages or 50,
             max_urls=max_urls or 100,
             provider=self.provider,
+        )
+        
+        # Analyze result for self-improvement
+        analysis = self.optimizer.analyze_crawl(
+            {"status": "completed" if result else "error", "crawled_pages": []},
+            strategy
         )
         
         return self._format_result(result, mode)

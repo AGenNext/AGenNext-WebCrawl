@@ -1,0 +1,5 @@
+[runner]
+strict = true
+
+[server]
+port = 8501
