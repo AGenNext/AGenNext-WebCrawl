@@ -22,7 +22,7 @@ EXPOSE 8501
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
-    CMD curl -f http://localhost:8501/_stcore/health || exit 1
+    CMD wget -q --spider http://127.0.0.1:8501/_stcore/health || exit 1
 
 # Start Streamlit with env vars
 ENV STREAMLIT_SERVER_PORT=8501

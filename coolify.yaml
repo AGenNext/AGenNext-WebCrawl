@@ -28,6 +28,9 @@ streamlit run examples/app.py --server.port=8501 --server.address=0.0.0.0 --serv
 - **HTTP Endpoint**: http://localhost:8501/_stcore/health
 - **Interval**: 30s
 
+## Coolify Reverse Proxy
+Coolify handles port 80 → 8501 routing automatically.
+
 ## Resources
 - RAM: 1024 MB
 - CPU: 1
