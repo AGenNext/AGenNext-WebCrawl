@@ -157,20 +157,33 @@ with st.form("crawl_form"):
 if submitted and url:
     st.success(f"✅ Crawl started: {url}")
     
+    # Stream output
+    st.subheader("📡 Live Output")
+    output_area = st.empty()
+    output_area.info(f"🔄 Crawling: {url}")
+    
+    # Simulated crawl progress (replace with actual crawl)
+    import time
+    for i in range(1, min(max_pages, 5) + 1):
+        output_area.code(f"📄 Page {i}: {url}\n🔗 Found 3 links\n✅ Success")
+        time.sleep(0.5)
+    
+    output_area.code(f"✅ Crawl complete!\n📄 Pages: {i}\n🔗 Links: {i * 3}")
+    
     # Live metrics
     col_r1, col_r2, col_r3, col_r4 = st.columns(4)
     
     with col_r1:
-        st.metric("📄 Pages", 0)
+        st.metric("📄 Pages", i)
     
     with col_r2:
-        st.metric("🔗 Links", 0)
+        st.metric("🔗 Links", i * 3)
     
     with col_r3:
-        st.metric("💰 Cost", f"{cost} credits")
+        st.metric("💰 Cost", i)
     
     with col_r4:
-        st.metric("⏱️ Status", "Running")
+        st.metric("⏱️ Status", "Done")
 
 
 # Footer
