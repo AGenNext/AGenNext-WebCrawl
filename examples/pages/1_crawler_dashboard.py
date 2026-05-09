@@ -76,10 +76,9 @@ CRAWL_PROVIDERS = {
 }
 
 LLM_PROVIDERS = {
-    "openai": {"name": "🤖 OpenAI", "models": ["gpt-4o", "o1-preview"]},
-    "anthropic": {"name": "🧠 Claude", "models": ["sonnet-4", "opus-4"]},
-    "ollama": {"name": "🦙 Ollama", "models": ["llama3", "mistral"]},
-    "gemini": {"name": "✨ Gemini", "models": ["gemini-2.0", "gemini-pro"]},
+    "ollama": {"name": "🦙 Ollama", "models": ["llama3", "mistral"]},  # FREE - default
+    "openai": {"name": "🤖 OpenAI", "models": ["gpt-4o"]},
+    "anthropic": {"name": "🧠 Claude", "models": ["sonnet"]},
 }
 
 CRAWL_MODES = {

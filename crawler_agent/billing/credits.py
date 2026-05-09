@@ -145,14 +145,18 @@ FEATURE_COSTS = {
     "premium_proxy": 3,
 }
 
-# LLM cost per 1K tokens (USD) - matches OpenAI/Anthropic rates
+# LLM cost per 1K tokens (USD) - $0 for open source!
 LLM_RATES = {
+    # Open source = FREE
+    "ollama/llama3": {"in": 0.0, "out": 0.0},
+    "ollama/mistral": {"in": 0.0, "out": 0.0},
+    "ollama/codellama": {"in": 0.0, "out": 0.0},
+    "llamafile/*": {"in": 0.0, "out": 0.0},
+    
+    # Cloud LLMs (optional)
     "openai/gpt-4o": {"in": 0.0025, "out": 0.01},
-    "openai/gpt-4o-mini": {"in": 0.00015, "out": 0.0006},
-    "anthropic/claude-sonnet": {"in": 0.003, "out": 0.015},
-    "anthropic/claude-opus": {"in": 0.015, "out": 0.075},
-    "gemini/gemini-pro": {"in": 0.000125, "out": 0.0005},
-    "ollama/*": {"in": 0.0, "out": 0.0},
+    "anthropic/claude": {"in": 0.003, "out": 0.015},
+    "gemini/*": {"in": 0.0, "out": 0.0},  # Free tier
 }
 
 
